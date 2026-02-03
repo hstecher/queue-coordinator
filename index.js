@@ -826,6 +826,7 @@ let state = {
     weeklyCompletedObs: [], // All completed observations for the week
     dailyResults: [],       // Results for each night {day, score, observations, efficiency}
     availableCatalog: [],   // Observations still available (not yet completed)
+    scoreSubmitted: false,  // Whether score has been submitted for current week
 
     // Time
     simTime: new Date(2024, 0, 15, 19, 0, 0), // Start at 7 PM

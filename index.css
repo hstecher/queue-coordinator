@@ -946,9 +946,9 @@ body {
     border-radius: var(--radius-xl);
     border: 1px solid var(--border-color);
     padding: var(--spacing-xl);
-    max-width: 500px;
+    max-width: 550px;
     width: 90%;
-    max-height: 80vh;
+    max-height: 85vh;
     overflow-y: auto;
     animation: slideUp 0.3s ease;
 }
@@ -969,6 +969,11 @@ body {
     font-size: 1.5rem;
     text-align: center;
     margin-bottom: var(--spacing-lg);
+}
+
+.modal-content > .btn {
+    width: 100%;
+    margin-top: var(--spacing-md);
 }
 
 .results-summary {
@@ -1005,8 +1010,6 @@ body {
     flex-direction: column;
     gap: var(--spacing-sm);
     margin-bottom: var(--spacing-lg);
-    max-height: 200px;
-    overflow-y: auto;
 }
 
 .obs-result {
@@ -1043,9 +1046,6 @@ body {
 /* ===================================
    WEEKLY SUMMARY STYLES
    =================================== */
-.observation-results {
-    max-height: 300px;
-}
 
 .weekly-progress-summary {
     display: flex;
@@ -1139,30 +1139,28 @@ body {
 }
 
 .night-result {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 1fr 50px 60px 60px;
     align-items: center;
     padding: var(--spacing-xs) var(--spacing-sm);
     background: var(--bg-secondary);
     border-radius: var(--radius-sm);
     font-size: 0.8rem;
+    gap: var(--spacing-sm);
 }
 
 .night-name {
     color: var(--text-secondary);
-    min-width: 80px;
 }
 
 .night-obs {
     color: var(--text-muted);
-    flex: 1;
     text-align: center;
 }
 
 .night-score {
     font-family: var(--font-mono);
     font-weight: 600;
-    min-width: 60px;
     text-align: right;
 }
 
@@ -1174,6 +1172,8 @@ body {
     display: flex;
     flex-wrap: wrap;
     gap: var(--spacing-xs);
+    max-height: 100px;
+    overflow-y: auto;
 }
 
 .missed-obs-item {
@@ -1218,7 +1218,6 @@ body {
     font-size: 1rem;
 }
 
-/* Nightly breakdown table */
 .night-result.header {
     background: var(--bg-panel);
     font-weight: 600;
@@ -1234,17 +1233,20 @@ body {
     font-weight: 600;
 }
 
-.night-result .night-total {
+.night-total {
     font-family: var(--font-mono);
     font-weight: 600;
     color: var(--accent-primary);
-    min-width: 50px;
     text-align: right;
 }
 
 /* ===================================
    HIGH SCORES MODAL
    =================================== */
+#highScoresModal {
+    z-index: 1001;
+}
+
 .high-scores-modal {
     max-width: 450px;
 }
