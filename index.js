@@ -8,17 +8,20 @@
 // ===================================
 const CONFIG = {
     // Simulation timing (in real seconds)
-    OBSERVATION_DURATION_SCALE: 0.1, // 1 minute of observation = 6 real seconds
-    SLEW_DURATION: 3000, // 3 seconds to slew
+    OBSERVATION_DURATION_SCALE: 0.033, // 1 minute of observation = 2 real seconds (3x faster)
+    SLEW_DURATION: 2000, // 2 seconds to slew (faster)
     TIME_SPEED: 60, // 1 real second = 1 simulated minute
-    
+
     // Star field
     NUM_STARS: 200,
     SIDEREAL_RATE: 0.5, // pixels per second drift
-    
+
     // Weather
     WEATHER_CHANGE_INTERVAL: 5000, // Weather can change every 5 seconds
-    
+
+    // Queue limits
+    MAX_QUEUE_SIZE: 6, // Maximum number of observations in nightly queue
+
     // IQ requirements (seeing in arcseconds)
     IQ_REQUIREMENTS: {
         'IQ20': 0.4,  // Excellent seeing required
@@ -26,7 +29,7 @@ const CONFIG = {
         'IQ85': 1.0,  // Moderate seeing ok
         'IQAny': 2.0  // Any conditions
     },
-    
+
     // Points multipliers
     BASE_POINTS: {
         'IQ20': 100,
@@ -48,7 +51,7 @@ const OBSERVATION_CATALOG = [
         ra: "05:35:17",
         dec: "-05°23'28\"",
         iq: "IQ85",
-        duration: 5, // minutes
+        duration: 5,
         description: "Star-forming region in Orion"
     },
     {
@@ -218,6 +221,161 @@ const OBSERVATION_CATALOG = [
         iq: "IQ70",
         duration: 8,
         description: "Massive binary star system"
+    },
+    {
+        id: 17,
+        name: "M51 - Whirlpool Galaxy",
+        type: "galaxy",
+        icon: "🌀",
+        ra: "13:29:52",
+        dec: "+47°11'43\"",
+        iq: "IQ70",
+        duration: 7,
+        description: "Interacting spiral galaxy pair"
+    },
+    {
+        id: 18,
+        name: "Ring Nebula - M57",
+        type: "nebula",
+        icon: "🌌",
+        ra: "18:53:35",
+        dec: "+33°01'45\"",
+        iq: "IQ85",
+        duration: 4,
+        description: "Planetary nebula in Lyra"
+    },
+    {
+        id: 19,
+        name: "Sirius A & B",
+        type: "star",
+        icon: "⭐",
+        ra: "06:45:09",
+        dec: "-16°42'58\"",
+        iq: "IQ20",
+        duration: 6,
+        description: "Binary star with white dwarf"
+    },
+    {
+        id: 20,
+        name: "M87 - Virgo A",
+        type: "galaxy",
+        icon: "🌀",
+        ra: "12:30:49",
+        dec: "+12°23'28\"",
+        iq: "IQ70",
+        duration: 10,
+        description: "Giant elliptical with black hole jet"
+    },
+    {
+        id: 21,
+        name: "Pleiades - M45",
+        type: "cluster",
+        icon: "✨",
+        ra: "03:47:00",
+        dec: "+24°07'00\"",
+        iq: "IQAny",
+        duration: 3,
+        description: "Open cluster - Seven Sisters"
+    },
+    {
+        id: 22,
+        name: "Kepler-442b Transit",
+        type: "exoplanet",
+        icon: "🪐",
+        ra: "04:53:09",
+        dec: "+41°38'41\"",
+        iq: "IQ20",
+        duration: 14,
+        description: "Super-Earth in habitable zone"
+    },
+    {
+        id: 23,
+        name: "Helix Nebula - NGC 7293",
+        type: "nebula",
+        icon: "🌌",
+        ra: "22:29:39",
+        dec: "-20°50'14\"",
+        iq: "IQ85",
+        duration: 6,
+        description: "Closest planetary nebula"
+    },
+    {
+        id: 24,
+        name: "Centaurus A - NGC 5128",
+        type: "galaxy",
+        icon: "🌀",
+        ra: "13:25:28",
+        dec: "-43°01'09\"",
+        iq: "IQ70",
+        duration: 9,
+        description: "Peculiar galaxy with dust lane"
+    },
+    {
+        id: 25,
+        name: "47 Tucanae",
+        type: "cluster",
+        icon: "✨",
+        ra: "00:24:05",
+        dec: "-72°04'53\"",
+        iq: "IQ85",
+        duration: 5,
+        description: "Dense globular cluster"
+    },
+    {
+        id: 26,
+        name: "2 Pallas",
+        type: "asteroid",
+        icon: "🪨",
+        ra: "08:12:34",
+        dec: "+15°23'12\"",
+        iq: "IQAny",
+        duration: 3,
+        description: "Third largest asteroid",
+        nonSidereal: true
+    },
+    {
+        id: 27,
+        name: "Polaris - North Star",
+        type: "star",
+        icon: "⭐",
+        ra: "02:31:49",
+        dec: "+89°15'51\"",
+        iq: "IQAny",
+        duration: 2,
+        description: "Cepheid variable star"
+    },
+    {
+        id: 28,
+        name: "Sombrero Galaxy - M104",
+        type: "galaxy",
+        icon: "🌀",
+        ra: "12:39:59",
+        dec: "-11°37'23\"",
+        iq: "IQ70",
+        duration: 8,
+        description: "Edge-on spiral with dust ring"
+    },
+    {
+        id: 29,
+        name: "Eagle Nebula - M16",
+        type: "nebula",
+        icon: "🌌",
+        ra: "18:18:48",
+        dec: "-13°47'00\"",
+        iq: "IQ85",
+        duration: 7,
+        description: "Pillars of Creation location"
+    },
+    {
+        id: 30,
+        name: "WASP-121b Transit",
+        type: "exoplanet",
+        icon: "🪐",
+        ra: "07:10:24",
+        dec: "-39°05'51\"",
+        iq: "IQ20",
+        duration: 11,
+        description: "Hot Jupiter with metal vapors"
     }
 ];
 
@@ -421,12 +579,14 @@ function setupEventListeners() {
 // CATALOG & QUEUE MANAGEMENT
 // ===================================
 function renderCatalog() {
+    const queueFull = state.nightlyQueue.length >= CONFIG.MAX_QUEUE_SIZE;
     elements.observationCatalog.innerHTML = OBSERVATION_CATALOG.map(obs => {
         const inQueue = state.nightlyQueue.some(q => q.id === obs.id);
         const points = CONFIG.BASE_POINTS[obs.iq];
-        
+        const isDisabled = inQueue || state.isRunning || (queueFull && !inQueue);
+
         return `
-            <div class="observation-item ${inQueue ? 'in-queue' : ''}" data-id="${obs.id}">
+            <div class="observation-item ${inQueue ? 'in-queue' : ''} ${queueFull && !inQueue ? 'queue-full' : ''}" data-id="${obs.id}">
                 <span class="obs-icon">${obs.icon}</span>
                 <div class="obs-info">
                     <div class="obs-name">${obs.name}</div>
@@ -436,7 +596,7 @@ function renderCatalog() {
                         <span class="obs-duration">${obs.duration} min</span>
                     </div>
                 </div>
-                <button class="obs-action" onclick="addToQueue(${obs.id})" ${inQueue || state.isRunning ? 'disabled' : ''}>+</button>
+                <button class="obs-action" onclick="addToQueue(${obs.id})" ${isDisabled ? 'disabled' : ''}>+</button>
             </div>
         `;
     }).join('');
@@ -477,7 +637,7 @@ function renderQueue() {
         }).join('');
     }
     
-    elements.queueCount.textContent = `${state.nightlyQueue.length} observations`;
+    elements.queueCount.textContent = `${state.nightlyQueue.length} / ${CONFIG.MAX_QUEUE_SIZE} observations`;
     elements.startNightBtn.disabled = state.nightlyQueue.length === 0 || state.isRunning;
     updateStatusDisplay();
 }
@@ -485,6 +645,9 @@ function renderQueue() {
 function addToQueue(obsId) {
     const obs = OBSERVATION_CATALOG.find(o => o.id === obsId);
     if (obs && !state.nightlyQueue.some(q => q.id === obsId)) {
+        if (state.nightlyQueue.length >= CONFIG.MAX_QUEUE_SIZE) {
+            return; // Queue is full
+        }
         state.nightlyQueue.push({...obs});
         renderCatalog();
         renderQueue();
@@ -851,27 +1014,84 @@ function renderStars(ctx, canvas, deltaTime) {
 }
 
 function renderWeatherEffects(ctx, canvas) {
-    // Cloud overlay
-    if (state.weather.clouds > 10) {
-        const cloudAlpha = (state.weather.clouds / 100) * 0.6;
-        
-        // Create cloud pattern
-        ctx.fillStyle = `rgba(80, 80, 90, ${cloudAlpha})`;
-        
-        const time = Date.now() / 5000;
-        const numClouds = Math.floor(state.weather.clouds / 10);
-        
+    // Cloud overlay - realistic fluffy clouds
+    if (state.weather.clouds > 5) {
+        const time = Date.now() / 8000;
+        const numClouds = Math.floor(state.weather.clouds / 5) + 2;
+        const baseAlpha = Math.min((state.weather.clouds / 100) * 0.85, 0.85);
+
         for (let i = 0; i < numClouds; i++) {
-            const x = ((i * 137 + time * 50) % (canvas.width + 200)) - 100;
-            const y = (Math.sin(i * 0.5) * 0.3 + 0.5) * canvas.height;
-            const size = 100 + (i % 5) * 30;
-            
-            ctx.beginPath();
-            ctx.ellipse(x, y, size, size * 0.4, 0, 0, Math.PI * 2);
-            ctx.fill();
+            // Each cloud drifts slowly across the sky
+            const baseX = ((i * 173 + time * 30) % (canvas.width + 300)) - 150;
+            const baseY = (Math.sin(i * 0.7 + 0.3) * 0.35 + 0.5) * canvas.height;
+            const cloudScale = 0.8 + (i % 4) * 0.3;
+
+            // Draw a fluffy cloud using multiple overlapping circles
+            const puffs = [
+                { ox: 0, oy: 0, r: 45 * cloudScale },
+                { ox: -35 * cloudScale, oy: 10 * cloudScale, r: 35 * cloudScale },
+                { ox: 40 * cloudScale, oy: 5 * cloudScale, r: 40 * cloudScale },
+                { ox: -60 * cloudScale, oy: 15 * cloudScale, r: 28 * cloudScale },
+                { ox: 70 * cloudScale, oy: 12 * cloudScale, r: 32 * cloudScale },
+                { ox: 20 * cloudScale, oy: -15 * cloudScale, r: 30 * cloudScale },
+                { ox: -20 * cloudScale, oy: -12 * cloudScale, r: 28 * cloudScale },
+                { ox: 50 * cloudScale, oy: -8 * cloudScale, r: 25 * cloudScale },
+                { ox: -45 * cloudScale, oy: -5 * cloudScale, r: 22 * cloudScale },
+            ];
+
+            // Draw shadow layer first (darker, offset down)
+            puffs.forEach(puff => {
+                const px = baseX + puff.ox;
+                const py = baseY + puff.oy + 8;
+                const gradient = ctx.createRadialGradient(px, py, 0, px, py, puff.r * 1.2);
+                gradient.addColorStop(0, `rgba(40, 45, 55, ${baseAlpha * 0.4})`);
+                gradient.addColorStop(0.6, `rgba(50, 55, 65, ${baseAlpha * 0.25})`);
+                gradient.addColorStop(1, 'rgba(60, 65, 75, 0)');
+
+                ctx.beginPath();
+                ctx.arc(px, py, puff.r * 1.2, 0, Math.PI * 2);
+                ctx.fillStyle = gradient;
+                ctx.fill();
+            });
+
+            // Draw main cloud puffs (lighter, fluffy appearance)
+            puffs.forEach(puff => {
+                const px = baseX + puff.ox;
+                const py = baseY + puff.oy;
+                const gradient = ctx.createRadialGradient(px, py - 5, 0, px, py, puff.r);
+                gradient.addColorStop(0, `rgba(200, 205, 215, ${baseAlpha * 0.9})`);
+                gradient.addColorStop(0.3, `rgba(160, 165, 180, ${baseAlpha * 0.7})`);
+                gradient.addColorStop(0.6, `rgba(120, 125, 140, ${baseAlpha * 0.5})`);
+                gradient.addColorStop(1, 'rgba(90, 95, 110, 0)');
+
+                ctx.beginPath();
+                ctx.arc(px, py, puff.r, 0, Math.PI * 2);
+                ctx.fillStyle = gradient;
+                ctx.fill();
+            });
+
+            // Add bright highlights on top of the cloud
+            const highlightPuffs = [
+                { ox: -10 * cloudScale, oy: -20 * cloudScale, r: 20 * cloudScale },
+                { ox: 25 * cloudScale, oy: -18 * cloudScale, r: 18 * cloudScale },
+            ];
+
+            highlightPuffs.forEach(puff => {
+                const px = baseX + puff.ox;
+                const py = baseY + puff.oy;
+                const gradient = ctx.createRadialGradient(px, py, 0, px, py, puff.r);
+                gradient.addColorStop(0, `rgba(240, 245, 255, ${baseAlpha * 0.5})`);
+                gradient.addColorStop(0.5, `rgba(220, 225, 235, ${baseAlpha * 0.25})`);
+                gradient.addColorStop(1, 'rgba(200, 205, 215, 0)');
+
+                ctx.beginPath();
+                ctx.arc(px, py, puff.r, 0, Math.PI * 2);
+                ctx.fillStyle = gradient;
+                ctx.fill();
+            });
         }
     }
-    
+
     // Seeing haze
     if (state.weather.seeing > 0.8) {
         const hazeAlpha = (state.weather.seeing - 0.8) * 0.15;
