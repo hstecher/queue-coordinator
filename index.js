@@ -475,6 +475,335 @@ const OBSERVATION_CATALOG = [
         wv: "WV20",
         duration: 11,
         description: "Hot Jupiter with metal vapors"
+    },
+    {
+        id: 31,
+        name: "Lagoon Nebula - M8",
+        type: "nebula",
+        icon: "🌌",
+        ra: "18:03:37",
+        dec: "-24°23'12\"",
+        iq: "IQ85",
+        cc: "CC70",
+        wv: "WV80",
+        duration: 5,
+        description: "Giant interstellar cloud"
+    },
+    {
+        id: 32,
+        name: "Triangulum Galaxy - M33",
+        type: "galaxy",
+        icon: "🌀",
+        ra: "01:33:51",
+        dec: "+30°39'37\"",
+        iq: "IQ70",
+        cc: "CC50",
+        wv: "WV50",
+        duration: 8,
+        description: "Third largest in Local Group"
+    },
+    {
+        id: 33,
+        name: "Barnard's Star",
+        type: "star",
+        icon: "⭐",
+        ra: "17:57:48",
+        dec: "+04°41'36\"",
+        iq: "IQ20",
+        cc: "CC50",
+        wv: "WV20",
+        duration: 7,
+        description: "Fastest proper motion star"
+    },
+    {
+        id: 34,
+        name: "Comet Encke",
+        type: "comet",
+        icon: "☄️",
+        ra: "11:22:15",
+        dec: "+08°12'33\"",
+        iq: "IQAny",
+        cc: "CC80",
+        wv: "WVAny",
+        duration: 4,
+        description: "Short period comet",
+        nonSidereal: true
+    },
+    {
+        id: 35,
+        name: "NGC 2070 - Tarantula Nebula",
+        type: "nebula",
+        icon: "🌌",
+        ra: "05:38:38",
+        dec: "-69°05'42\"",
+        iq: "IQ85",
+        cc: "CC70",
+        wv: "WV80",
+        duration: 6,
+        description: "Largest H II region known"
+    },
+    {
+        id: 36,
+        name: "M81 - Bode's Galaxy",
+        type: "galaxy",
+        icon: "🌀",
+        ra: "09:55:33",
+        dec: "+69°03'55\"",
+        iq: "IQ70",
+        cc: "CC50",
+        wv: "WV50",
+        duration: 7,
+        description: "Grand design spiral galaxy"
+    },
+    {
+        id: 37,
+        name: "Arcturus",
+        type: "star",
+        icon: "⭐",
+        ra: "14:15:40",
+        dec: "+19°10'56\"",
+        iq: "IQAny",
+        cc: "CCAny",
+        wv: "WVAny",
+        duration: 2,
+        description: "Brightest star in Boötes"
+    },
+    {
+        id: 38,
+        name: "M13 - Hercules Cluster",
+        type: "cluster",
+        icon: "✨",
+        ra: "16:41:41",
+        dec: "+36°27'37\"",
+        iq: "IQ85",
+        cc: "CC70",
+        wv: "WV80",
+        duration: 5,
+        description: "Great globular cluster"
+    },
+    {
+        id: 39,
+        name: "TOI-700 d Transit",
+        type: "exoplanet",
+        icon: "🪐",
+        ra: "06:28:23",
+        dec: "-65°34'46\"",
+        iq: "IQ20",
+        cc: "CC50",
+        wv: "WV20",
+        duration: 13,
+        description: "Earth-size habitable zone planet"
+    },
+    {
+        id: 40,
+        name: "4 Vesta",
+        type: "asteroid",
+        icon: "🪨",
+        ra: "19:22:18",
+        dec: "-21°45'33\"",
+        iq: "IQAny",
+        cc: "CC80",
+        wv: "WVAny",
+        duration: 3,
+        description: "Second largest asteroid",
+        nonSidereal: true
+    },
+    {
+        id: 41,
+        name: "Cat's Eye Nebula - NGC 6543",
+        type: "nebula",
+        icon: "🌌",
+        ra: "17:58:33",
+        dec: "+66°37'59\"",
+        iq: "IQ70",
+        cc: "CC70",
+        wv: "WV50",
+        duration: 5,
+        description: "Complex planetary nebula"
+    },
+    {
+        id: 42,
+        name: "NGC 4565 - Needle Galaxy",
+        type: "galaxy",
+        icon: "🌀",
+        ra: "12:36:21",
+        dec: "+25°59'15\"",
+        iq: "IQ70",
+        cc: "CC50",
+        wv: "WV50",
+        duration: 8,
+        description: "Edge-on spiral galaxy"
+    },
+    {
+        id: 43,
+        name: "Rigel",
+        type: "star",
+        icon: "⭐",
+        ra: "05:14:32",
+        dec: "-08°12'06\"",
+        iq: "IQAny",
+        cc: "CCAny",
+        wv: "WVAny",
+        duration: 2,
+        description: "Blue supergiant in Orion"
+    },
+    {
+        id: 44,
+        name: "M22 - Sagittarius Cluster",
+        type: "cluster",
+        icon: "✨",
+        ra: "18:36:24",
+        dec: "-23°54'17\"",
+        iq: "IQ85",
+        cc: "CC70",
+        wv: "WV80",
+        duration: 4,
+        description: "One of nearest globulars"
+    },
+    {
+        id: 45,
+        name: "Dumbbell Nebula - M27",
+        type: "nebula",
+        icon: "🌌",
+        ra: "19:59:36",
+        dec: "+22°43'16\"",
+        iq: "IQ85",
+        cc: "CC70",
+        wv: "WV80",
+        duration: 5,
+        description: "Bright planetary nebula"
+    },
+    {
+        id: 46,
+        name: "M82 - Cigar Galaxy",
+        type: "galaxy",
+        icon: "🌀",
+        ra: "09:55:52",
+        dec: "+69°40'47\"",
+        iq: "IQ70",
+        cc: "CC50",
+        wv: "WV50",
+        duration: 7,
+        description: "Starburst galaxy"
+    },
+    {
+        id: 47,
+        name: "Aldebaran",
+        type: "star",
+        icon: "⭐",
+        ra: "04:35:55",
+        dec: "+16°30'33\"",
+        iq: "IQAny",
+        cc: "CCAny",
+        wv: "WVAny",
+        duration: 2,
+        description: "Red giant eye of Taurus"
+    },
+    {
+        id: 48,
+        name: "HD 209458 b Transit",
+        type: "exoplanet",
+        icon: "🪐",
+        ra: "22:03:11",
+        dec: "+18°53'04\"",
+        iq: "IQ20",
+        cc: "CC50",
+        wv: "WV20",
+        duration: 10,
+        description: "First transiting exoplanet found"
+    },
+    {
+        id: 49,
+        name: "1 Ceres",
+        type: "asteroid",
+        icon: "🪨",
+        ra: "03:45:22",
+        dec: "+18°22'11\"",
+        iq: "IQAny",
+        cc: "CC80",
+        wv: "WVAny",
+        duration: 4,
+        description: "Largest asteroid / dwarf planet",
+        nonSidereal: true
+    },
+    {
+        id: 50,
+        name: "Rosette Nebula - NGC 2237",
+        type: "nebula",
+        icon: "🌌",
+        ra: "06:32:24",
+        dec: "+05°03'00\"",
+        iq: "IQ85",
+        cc: "CC70",
+        wv: "WV80",
+        duration: 6,
+        description: "Emission nebula with cluster"
+    },
+    {
+        id: 51,
+        name: "Pinwheel Galaxy - M101",
+        type: "galaxy",
+        icon: "🌀",
+        ra: "14:03:13",
+        dec: "+54°20'56\"",
+        iq: "IQ70",
+        cc: "CC50",
+        wv: "WV50",
+        duration: 9,
+        description: "Face-on spiral galaxy"
+    },
+    {
+        id: 52,
+        name: "Spica",
+        type: "star",
+        icon: "⭐",
+        ra: "13:25:12",
+        dec: "-11°09'41\"",
+        iq: "IQAny",
+        cc: "CC70",
+        wv: "WV50",
+        duration: 3,
+        description: "Brightest star in Virgo"
+    },
+    {
+        id: 53,
+        name: "Double Cluster - NGC 869/884",
+        type: "cluster",
+        icon: "✨",
+        ra: "02:20:00",
+        dec: "+57°08'00\"",
+        iq: "IQ85",
+        cc: "CC70",
+        wv: "WV80",
+        duration: 4,
+        description: "Twin open clusters in Perseus"
+    },
+    {
+        id: 54,
+        name: "K2-18 b Transit",
+        type: "exoplanet",
+        icon: "🪐",
+        ra: "11:30:14",
+        dec: "+07°35'18\"",
+        iq: "IQ20",
+        cc: "CC50",
+        wv: "WV20",
+        duration: 12,
+        description: "Water vapor detected exoplanet"
+    },
+    {
+        id: 55,
+        name: "Comet Halley Monitor",
+        type: "comet",
+        icon: "☄️",
+        ra: "08:15:33",
+        dec: "+12°44'22\"",
+        iq: "IQAny",
+        cc: "CC80",
+        wv: "WVAny",
+        duration: 5,
+        description: "Long-period monitoring",
+        nonSidereal: true
     }
 ];
 
@@ -580,7 +909,15 @@ function initElements() {
         obsCompleted: document.getElementById('obsCompleted'),
         avgScore: document.getElementById('avgScore'),
         observationResults: document.getElementById('observationResults'),
-        closeModalBtn: document.getElementById('closeModalBtn')
+        closeModalBtn: document.getElementById('closeModalBtn'),
+
+        // High Scores Modal
+        highScoresModal: document.getElementById('highScoresModal'),
+        highScoresList: document.getElementById('highScoresList'),
+        submitScoreSection: document.getElementById('submitScoreSection'),
+        playerNameInput: document.getElementById('playerNameInput'),
+        submitScoreBtn: document.getElementById('submitScoreBtn'),
+        closeHighScoresBtn: document.getElementById('closeHighScoresBtn')
     };
 
     elements.ctx = elements.canvas.getContext('2d');
@@ -755,6 +1092,11 @@ function setupEventListeners() {
     elements.startNightBtn.addEventListener('click', startNight);
     elements.resetBtn.addEventListener('click', resetSimulation);
     elements.closeModalBtn.addEventListener('click', closeModal);
+    elements.closeHighScoresBtn.addEventListener('click', closeHighScoresModal);
+    elements.submitScoreBtn.addEventListener('click', submitScore);
+    elements.playerNameInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') submitScore();
+    });
 }
 
 // ===================================
@@ -775,7 +1117,7 @@ function renderCatalog() {
 
     elements.observationCatalog.innerHTML = state.availableCatalog.map(obs => {
         const inQueue = state.nightlyQueue.some(q => q.id === obs.id);
-        const points = CONFIG.BASE_POINTS[obs.iq];
+        const points = getObservationPoints(obs);
         const isDisabled = inQueue || state.isRunning || (queueFull && !inQueue);
 
         return `
@@ -787,6 +1129,7 @@ function renderCatalog() {
                         <span class="obs-constraint ${obs.iq.toLowerCase()}">${obs.iq}</span>
                         <span class="obs-constraint ${obs.cc.toLowerCase()}">${obs.cc}</span>
                         <span class="obs-constraint ${obs.wv.toLowerCase()}">${obs.wv}</span>
+                        <span class="obs-points">+${points} pts</span>
                         <span class="obs-duration">${obs.duration}m</span>
                     </div>
                 </div>
@@ -806,7 +1149,7 @@ function renderQueue() {
         `;
     } else {
         elements.nightlyQueue.innerHTML = state.nightlyQueue.map((obs, index) => {
-            const points = CONFIG.BASE_POINTS[obs.iq];
+            const points = getObservationPoints(obs);
             const isCurrent = state.isRunning && index === state.currentObsIndex;
             const isCompleted = state.completedObs.some(c => c.id === obs.id);
 
@@ -819,6 +1162,7 @@ function renderQueue() {
                             <span class="obs-constraint ${obs.iq.toLowerCase()}">${obs.iq}</span>
                             <span class="obs-constraint ${obs.cc.toLowerCase()}">${obs.cc}</span>
                             <span class="obs-constraint ${obs.wv.toLowerCase()}">${obs.wv}</span>
+                            <span class="obs-points">+${points}</span>
                             <span class="obs-duration">${obs.duration}m</span>
                         </div>
                     </div>
@@ -996,7 +1340,7 @@ function calculateScore(obs) {
     const actualSeeing = state.weather.seeing;
     const actualClouds = state.weather.clouds;
     const actualHumidity = state.weather.humidity;
-    const basePoints = CONFIG.BASE_POINTS[obs.iq];
+    const basePoints = getObservationPoints(obs);
 
     let multiplier = 1.0;
 
@@ -1036,7 +1380,7 @@ function calculateScore(obs) {
     const points = Math.round(basePoints * multiplier);
     const efficiency = Math.round(multiplier * 100);
 
-    return { points, efficiency, multiplier };
+    return { points, efficiency, multiplier, basePoints };
 }
 
 function endNight() {
@@ -1049,7 +1393,7 @@ function endNight() {
     });
 
     // Calculate nightly efficiency
-    const totalPossible = state.completedObs.reduce((sum, obs) => sum + CONFIG.BASE_POINTS[obs.iq], 0);
+    const totalPossible = state.completedObs.reduce((sum, obs) => sum + getObservationPoints(obs), 0);
     const nightlyEfficiency = totalPossible > 0 ? Math.round((state.totalScore / totalPossible) * 100) : 0;
 
     // Save daily results
@@ -1078,7 +1422,7 @@ function endNight() {
 }
 
 function showNightResults() {
-    const totalPossible = state.completedObs.reduce((sum, obs) => sum + CONFIG.BASE_POINTS[obs.iq], 0);
+    const totalPossible = state.completedObs.reduce((sum, obs) => sum + getObservationPoints(obs), 0);
     const avgEfficiency = totalPossible > 0 ? Math.round((state.totalScore / totalPossible) * 100) : 0;
 
     // Update modal for nightly results
@@ -1110,7 +1454,7 @@ function showNightResults() {
         </div>
         <h4 style="margin: 1rem 0 0.5rem; color: var(--text-secondary);">Tonight's Observations:</h4>
         ${state.completedObs.map(obs => {
-            const maxPoints = CONFIG.BASE_POINTS[obs.iq];
+            const maxPoints = getObservationPoints(obs);
             const scoreClass = obs.efficiency >= 80 ? 'good' : obs.efficiency >= 50 ? 'ok' : 'poor';
             return `
                 <div class="obs-result">
@@ -1127,10 +1471,17 @@ function showNightResults() {
 
 function showWeeklySummary() {
     // Calculate weekly stats
-    const totalPossibleWeekly = state.weeklyCompletedObs.reduce((sum, obs) => sum + CONFIG.BASE_POINTS[obs.iq], 0);
+    const totalPossibleWeekly = state.weeklyCompletedObs.reduce((sum, obs) => sum + getObservationPoints(obs), 0);
     const weeklyEfficiency = totalPossibleWeekly > 0 ? Math.round((state.weeklyScore / totalPossibleWeekly) * 100) : 0;
-    const maxPossibleScore = OBSERVATION_CATALOG.reduce((sum, obs) => sum + CONFIG.BASE_POINTS[obs.iq], 0);
+    const maxPossibleScore = OBSERVATION_CATALOG.reduce((sum, obs) => sum + getObservationPoints(obs), 0);
     const completionRate = Math.round((state.weeklyCompletedObs.length / OBSERVATION_CATALOG.length) * 100);
+
+    // Calculate running totals for the breakdown
+    let runningTotal = 0;
+    const dailyWithRunning = state.dailyResults.map(day => {
+        runningTotal += day.score;
+        return { ...day, runningTotal };
+    });
 
     // Determine rating
     let rating, ratingEmoji;
@@ -1180,21 +1531,39 @@ function showWeeklySummary() {
 
         <h4 style="margin: 1rem 0 0.5rem; color: var(--text-secondary);">Nightly Breakdown:</h4>
         <div class="nightly-breakdown">
-            ${state.dailyResults.map(day => `
+            <div class="night-result header">
+                <span class="night-name">Night</span>
+                <span class="night-obs">Obs</span>
+                <span class="night-score">Score</span>
+                <span class="night-total">Total</span>
+            </div>
+            ${dailyWithRunning.map(day => `
                 <div class="night-result">
                     <span class="night-name">${day.dayName}</span>
-                    <span class="night-obs">${day.observations.length} obs</span>
+                    <span class="night-obs">${day.observations.length}</span>
                     <span class="night-score ${day.efficiency >= 80 ? 'good' : day.efficiency >= 50 ? 'ok' : 'poor'}">+${day.score}</span>
+                    <span class="night-total">${day.runningTotal}</span>
                 </div>
             `).join('')}
+            <div class="night-result total-row">
+                <span class="night-name">TOTAL</span>
+                <span class="night-obs">${state.weeklyCompletedObs.length}</span>
+                <span class="night-score"></span>
+                <span class="night-total">${state.weeklyScore}</span>
+            </div>
         </div>
 
+        <button id="viewHighScoresBtn" class="btn btn-secondary" style="width: 100%; margin: 1rem 0;" onclick="showHighScores()">
+            View High Scores
+        </button>
+
         ${state.availableCatalog.length > 0 ? `
-            <h4 style="margin: 1rem 0 0.5rem; color: var(--text-secondary);">Missed Observations:</h4>
+            <h4 style="margin: 1rem 0 0.5rem; color: var(--text-secondary);">Missed Observations (${state.availableCatalog.length}):</h4>
             <div class="missed-obs">
-                ${state.availableCatalog.map(obs => `
+                ${state.availableCatalog.slice(0, 10).map(obs => `
                     <span class="missed-obs-item">${obs.icon} ${obs.name}</span>
                 `).join('')}
+                ${state.availableCatalog.length > 10 ? `<span class="missed-obs-item">+${state.availableCatalog.length - 10} more</span>` : ''}
             </div>
         ` : `
             <div class="perfect-completion">
@@ -1207,6 +1576,132 @@ function showWeeklySummary() {
     elements.closeModalBtn.textContent = 'Start New Week';
     elements.resultsModal.classList.remove('hidden');
 }
+
+// ===================================
+// HIGH SCORES SYSTEM
+// ===================================
+async function showHighScores() {
+    elements.highScoresModal.classList.remove('hidden');
+    elements.highScoresList.innerHTML = '<div class="loading-scores">Loading scores...</div>';
+
+    // Show submit section if week is complete and score > 0
+    if (state.currentDay >= 6 && state.weeklyScore > 0) {
+        elements.submitScoreSection.classList.remove('hidden');
+    } else {
+        elements.submitScoreSection.classList.add('hidden');
+    }
+
+    try {
+        const response = await fetch('/api/scores');
+        const scores = await response.json();
+
+        if (scores.length === 0) {
+            elements.highScoresList.innerHTML = `
+                <div class="no-scores">
+                    <span>🌟</span>
+                    <p>No high scores yet. Be the first to complete a week!</p>
+                </div>
+            `;
+            return;
+        }
+
+        elements.highScoresList.innerHTML = scores.map((score, index) => {
+            const rank = index + 1;
+            let rankClass = '';
+            if (rank === 1) rankClass = 'gold';
+            else if (rank === 2) rankClass = 'silver';
+            else if (rank === 3) rankClass = 'bronze';
+
+            const date = new Date(score.date).toLocaleDateString();
+
+            return `
+                <div class="high-score-item">
+                    <span class="high-score-rank ${rankClass}">${rank}</span>
+                    <div class="high-score-info">
+                        <div class="high-score-name">${escapeHtml(score.name)}</div>
+                        <div class="high-score-details">${score.observations} obs • ${score.efficiency}% eff • ${date}</div>
+                    </div>
+                    <span class="high-score-value">${score.score}</span>
+                </div>
+            `;
+        }).join('');
+    } catch (error) {
+        console.error('Failed to load high scores:', error);
+        elements.highScoresList.innerHTML = `
+            <div class="no-scores">
+                <span>⚠️</span>
+                <p>Failed to load high scores. Please try again.</p>
+            </div>
+        `;
+    }
+}
+
+async function submitScore() {
+    const name = elements.playerNameInput.value.trim();
+    if (!name) {
+        elements.playerNameInput.focus();
+        return;
+    }
+
+    const totalPossibleWeekly = state.weeklyCompletedObs.reduce((sum, obs) => sum + getObservationPoints(obs), 0);
+    const weeklyEfficiency = totalPossibleWeekly > 0 ? Math.round((state.weeklyScore / totalPossibleWeekly) * 100) : 0;
+
+    elements.submitScoreBtn.disabled = true;
+    elements.submitScoreBtn.textContent = 'Submitting...';
+
+    try {
+        const response = await fetch('/api/scores', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                name,
+                score: state.weeklyScore,
+                observations: state.weeklyCompletedObs.length,
+                efficiency: weeklyEfficiency
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            elements.submitScoreSection.classList.add('hidden');
+            // Refresh the high scores list
+            await showHighScores();
+            // Highlight the player's score
+            highlightPlayerScore(result.rank);
+        }
+    } catch (error) {
+        console.error('Failed to submit score:', error);
+        alert('Failed to submit score. Please try again.');
+    } finally {
+        elements.submitScoreBtn.disabled = false;
+        elements.submitScoreBtn.textContent = 'Submit Score';
+    }
+}
+
+function highlightPlayerScore(rank) {
+    const items = elements.highScoresList.querySelectorAll('.high-score-item');
+    if (items[rank - 1]) {
+        items[rank - 1].classList.add('current-player');
+        items[rank - 1].scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+}
+
+function closeHighScoresModal() {
+    elements.highScoresModal.classList.add('hidden');
+    elements.playerNameInput.value = '';
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Make showHighScores globally accessible
+window.showHighScores = showHighScores;
 
 function closeModal() {
     elements.resultsModal.classList.add('hidden');
@@ -1411,14 +1906,15 @@ function renderStars(ctx, canvas, deltaTime) {
 function renderWeatherEffects(ctx, canvas) {
     // Cloud overlay - realistic fluffy clouds with independent wind-driven movement
     if (state.weather.clouds > 5) {
-        // Clouds move independently based on wind (always moving, regardless of telescope tracking)
+        // Clouds move faster during slew to simulate telescope movement
+        const baseCloudSpeed = state.isSlewing ? CONFIG.CLOUD_SLEW_SPEED : CONFIG.CLOUD_WIND_SPEED;
         const windTime = Date.now() / 1000; // Time in seconds for smooth wind animation
         const numClouds = Math.floor(state.weather.clouds / 5) + 2;
         const baseAlpha = Math.min((state.weather.clouds / 100) * 0.85, 0.85);
 
         for (let i = 0; i < numClouds; i++) {
             // Each cloud has its own speed variation (wind gusts)
-            const cloudSpeed = CONFIG.CLOUD_WIND_SPEED * (0.7 + (i % 3) * 0.3);
+            const cloudSpeed = baseCloudSpeed * (0.7 + (i % 3) * 0.3);
             // Clouds drift across the sky driven by wind (independent of star movement)
             const baseX = ((i * 173 + windTime * cloudSpeed) % (canvas.width + 300)) - 150;
             const baseY = (Math.sin(i * 0.7 + 0.3) * 0.35 + 0.5) * canvas.height;
