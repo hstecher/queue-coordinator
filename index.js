@@ -966,6 +966,7 @@ function initializeWeek() {
     state.weeklyCompletedObs = [];
     state.dailyResults = [];
     state.availableCatalog = [...OBSERVATION_CATALOG]; // Copy of all observations
+    state.scoreSubmitted = false;
 
     // Generate 7-day forecast
     generateWeeklyForecast();
@@ -1585,8 +1586,8 @@ async function showHighScores() {
     elements.highScoresModal.classList.remove('hidden');
     elements.highScoresList.innerHTML = '<div class="loading-scores">Loading scores...</div>';
 
-    // Show submit section if week is complete and score > 0
-    if (state.currentDay >= 6 && state.weeklyScore > 0) {
+    // Show submit section if week is complete, score > 0, and not already submitted
+    if (state.currentDay >= 6 && state.weeklyScore > 0 && !state.scoreSubmitted) {
         elements.submitScoreSection.classList.remove('hidden');
     } else {
         elements.submitScoreSection.classList.add('hidden');
@@ -1667,6 +1668,7 @@ async function submitScore() {
         const result = await response.json();
 
         if (result.success) {
+            state.scoreSubmitted = true;
             elements.submitScoreSection.classList.add('hidden');
             // Refresh the high scores list
             await showHighScores();

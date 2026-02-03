@@ -158,6 +158,26 @@ body {
     text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
 }
 
+.header-btn {
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: rgba(255, 215, 0, 0.15);
+    border: 1px solid rgba(255, 215, 0, 0.4);
+    border-radius: var(--radius-md);
+    color: #ffd700;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.header-btn:hover {
+    background: rgba(255, 215, 0, 0.25);
+    border-color: rgba(255, 215, 0, 0.6);
+    transform: translateY(-1px);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+}
+
 /* ===================================
    MAIN CONTENT LAYOUT
    =================================== */
