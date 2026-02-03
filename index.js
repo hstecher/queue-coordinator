@@ -8,8 +8,8 @@
 // ===================================
 const CONFIG = {
     // Simulation timing (in real seconds)
-    OBSERVATION_DURATION_SCALE: 0.033, // 1 minute of observation = 2 real seconds (3x faster)
-    SLEW_DURATION: 2000, // 2 seconds to slew (faster)
+    OBSERVATION_DURATION_SCALE: 0.0037, // ~27x faster than original (3x faster than before)
+    SLEW_DURATION: 1000, // 1 second to slew
     TIME_SPEED: 60, // 1 real second = 1 simulated minute
 
     // Star field
@@ -18,26 +18,65 @@ const CONFIG = {
 
     // Weather
     WEATHER_CHANGE_INTERVAL: 5000, // Weather can change every 5 seconds
+    CLOUD_WIND_SPEED: 25, // pixels per second for cloud drift
+    CLOUD_SLEW_SPEED: 150, // faster cloud movement during slew
 
     // Queue limits
     MAX_QUEUE_SIZE: 6, // Maximum number of observations in nightly queue
 
-    // IQ requirements (seeing in arcseconds)
+    // IQ requirements (seeing in arcseconds) - Image Quality percentiles
     IQ_REQUIREMENTS: {
-        'IQ20': 0.4,  // Excellent seeing required
-        'IQ70': 0.7,  // Good seeing required
-        'IQ85': 1.0,  // Moderate seeing ok
+        'IQ20': 0.4,  // Best 20% seeing conditions
+        'IQ70': 0.7,  // Best 70% seeing conditions
+        'IQ85': 1.0,  // Best 85% seeing conditions
         'IQAny': 2.0  // Any conditions
     },
 
-    // Points multipliers
-    BASE_POINTS: {
-        'IQ20': 100,
-        'IQ70': 70,
-        'IQ85': 50,
-        'IQAny': 30
+    // CC requirements (cloud cover percentiles)
+    CC_REQUIREMENTS: {
+        'CC50': 50,   // Best 50% cloud conditions (< 50% clouds)
+        'CC70': 70,   // Best 70% cloud conditions (< 70% clouds)
+        'CC80': 80,   // Best 80% cloud conditions (< 80% clouds)
+        'CCAny': 100  // Any conditions
+    },
+
+    // Humidity requirements
+    WV_REQUIREMENTS: {
+        'WV20': 30,   // Best 20% water vapor (< 30% humidity)
+        'WV50': 50,   // Best 50% water vapor (< 50% humidity)
+        'WV80': 70,   // Best 80% water vapor (< 70% humidity)
+        'WVAny': 100  // Any conditions
+    },
+
+    // Base points for IQ - stricter requirements = more points
+    IQ_POINTS: {
+        'IQ20': 50,   // Strictest IQ
+        'IQ70': 35,
+        'IQ85': 25,
+        'IQAny': 15
+    },
+
+    // Bonus points for CC - stricter requirements = more points
+    CC_POINTS: {
+        'CC50': 30,   // Strictest CC
+        'CC70': 20,
+        'CC80': 10,
+        'CCAny': 5
+    },
+
+    // Bonus points for WV - stricter requirements = more points
+    WV_POINTS: {
+        'WV20': 20,   // Strictest WV
+        'WV50': 12,
+        'WV80': 6,
+        'WVAny': 3
     }
 };
+
+// Calculate total base points for an observation
+function getObservationPoints(obs) {
+    return CONFIG.IQ_POINTS[obs.iq] + CONFIG.CC_POINTS[obs.cc] + CONFIG.WV_POINTS[obs.wv];
+}
 
 // ===================================
 // OBSERVATION CATALOG
@@ -51,6 +90,8 @@ const OBSERVATION_CATALOG = [
         ra: "05:35:17",
         dec: "-05°23'28\"",
         iq: "IQ85",
+        cc: "CC70",
+        wv: "WV80",
         duration: 5,
         description: "Star-forming region in Orion"
     },
@@ -62,6 +103,8 @@ const OBSERVATION_CATALOG = [
         ra: "03:33:36",
         dec: "-36°08'25\"",
         iq: "IQ70",
+        cc: "CC50",
+        wv: "WV50",
         duration: 8,
         description: "Barred spiral galaxy in Fornax"
     },
@@ -73,6 +116,8 @@ const OBSERVATION_CATALOG = [
         ra: "14:29:43",
         dec: "-62°40'46\"",
         iq: "IQ20",
+        cc: "CC50",
+        wv: "WV20",
         duration: 10,
         description: "Closest star to the Sun"
     },
@@ -84,6 +129,8 @@ const OBSERVATION_CATALOG = [
         ra: "22:15:44",
         dec: "+12°18'32\"",
         iq: "IQAny",
+        cc: "CC80",
+        wv: "WVAny",
         duration: 4,
         description: "Periodic comet, non-sidereal tracking",
         nonSidereal: true
@@ -96,6 +143,8 @@ const OBSERVATION_CATALOG = [
         ra: "00:42:44",
         dec: "+41°16'09\"",
         iq: "IQ85",
+        cc: "CC70",
+        wv: "WV80",
         duration: 6,
         description: "Nearest large galaxy"
     },
@@ -107,6 +156,8 @@ const OBSERVATION_CATALOG = [
         ra: "05:55:10",
         dec: "+07°24'25\"",
         iq: "IQAny",
+        cc: "CCAny",
+        wv: "WVAny",
         duration: 3,
         description: "Red supergiant in Orion"
     },
@@ -118,6 +169,8 @@ const OBSERVATION_CATALOG = [
         ra: "17:15:19",
         dec: "+04°57'50\"",
         iq: "IQ20",
+        cc: "CC50",
+        wv: "WV20",
         duration: 15,
         description: "Exoplanet transit observation"
     },
@@ -129,6 +182,8 @@ const OBSERVATION_CATALOG = [
         ra: "17:40:42",
         dec: "-53°40'27\"",
         iq: "IQ70",
+        cc: "CC70",
+        wv: "WV50",
         duration: 7,
         description: "One of the closest globular clusters"
     },
@@ -140,6 +195,8 @@ const OBSERVATION_CATALOG = [
         ra: "05:34:32",
         dec: "+22°00'52\"",
         iq: "IQ85",
+        cc: "CC70",
+        wv: "WV80",
         duration: 5,
         description: "Supernova remnant in Taurus"
     },
@@ -151,6 +208,8 @@ const OBSERVATION_CATALOG = [
         ra: "18:45:12",
         dec: "-23°12'45\"",
         iq: "IQAny",
+        cc: "CC80",
+        wv: "WVAny",
         duration: 4,
         description: "Fast-moving NEO, non-sidereal",
         nonSidereal: true
@@ -163,6 +222,8 @@ const OBSERVATION_CATALOG = [
         ra: "18:36:56",
         dec: "+38°47'01\"",
         iq: "IQAny",
+        cc: "CC70",
+        wv: "WV50",
         duration: 2,
         description: "Photometric standard star"
     },
@@ -174,6 +235,8 @@ const OBSERVATION_CATALOG = [
         ra: "00:47:33",
         dec: "-25°17'18\"",
         iq: "IQ70",
+        cc: "CC50",
+        wv: "WV50",
         duration: 9,
         description: "Starburst galaxy in Sculptor"
     },
@@ -185,6 +248,8 @@ const OBSERVATION_CATALOG = [
         ra: "23:06:29",
         dec: "-05°02'29\"",
         iq: "IQ20",
+        cc: "CC50",
+        wv: "WV20",
         duration: 12,
         description: "Multi-planet system observation"
     },
@@ -196,6 +261,8 @@ const OBSERVATION_CATALOG = [
         ra: "13:26:47",
         dec: "-47°28'46\"",
         iq: "IQ85",
+        cc: "CC70",
+        wv: "WV80",
         duration: 6,
         description: "Largest globular cluster in MW"
     },
@@ -207,6 +274,8 @@ const OBSERVATION_CATALOG = [
         ra: "16:22:18",
         dec: "-28°45'10\"",
         iq: "IQAny",
+        cc: "CC80",
+        wv: "WVAny",
         duration: 5,
         description: "Bright periodic comet",
         nonSidereal: true
@@ -219,6 +288,8 @@ const OBSERVATION_CATALOG = [
         ra: "10:45:04",
         dec: "-59°41'04\"",
         iq: "IQ70",
+        cc: "CC70",
+        wv: "WV50",
         duration: 8,
         description: "Massive binary star system"
     },
@@ -230,6 +301,8 @@ const OBSERVATION_CATALOG = [
         ra: "13:29:52",
         dec: "+47°11'43\"",
         iq: "IQ70",
+        cc: "CC50",
+        wv: "WV50",
         duration: 7,
         description: "Interacting spiral galaxy pair"
     },
@@ -241,6 +314,8 @@ const OBSERVATION_CATALOG = [
         ra: "18:53:35",
         dec: "+33°01'45\"",
         iq: "IQ85",
+        cc: "CC70",
+        wv: "WV80",
         duration: 4,
         description: "Planetary nebula in Lyra"
     },
@@ -252,6 +327,8 @@ const OBSERVATION_CATALOG = [
         ra: "06:45:09",
         dec: "-16°42'58\"",
         iq: "IQ20",
+        cc: "CC50",
+        wv: "WV20",
         duration: 6,
         description: "Binary star with white dwarf"
     },
@@ -263,6 +340,8 @@ const OBSERVATION_CATALOG = [
         ra: "12:30:49",
         dec: "+12°23'28\"",
         iq: "IQ70",
+        cc: "CC50",
+        wv: "WV50",
         duration: 10,
         description: "Giant elliptical with black hole jet"
     },
@@ -274,6 +353,8 @@ const OBSERVATION_CATALOG = [
         ra: "03:47:00",
         dec: "+24°07'00\"",
         iq: "IQAny",
+        cc: "CCAny",
+        wv: "WVAny",
         duration: 3,
         description: "Open cluster - Seven Sisters"
     },
@@ -285,6 +366,8 @@ const OBSERVATION_CATALOG = [
         ra: "04:53:09",
         dec: "+41°38'41\"",
         iq: "IQ20",
+        cc: "CC50",
+        wv: "WV20",
         duration: 14,
         description: "Super-Earth in habitable zone"
     },
@@ -296,6 +379,8 @@ const OBSERVATION_CATALOG = [
         ra: "22:29:39",
         dec: "-20°50'14\"",
         iq: "IQ85",
+        cc: "CC70",
+        wv: "WV80",
         duration: 6,
         description: "Closest planetary nebula"
     },
@@ -307,6 +392,8 @@ const OBSERVATION_CATALOG = [
         ra: "13:25:28",
         dec: "-43°01'09\"",
         iq: "IQ70",
+        cc: "CC50",
+        wv: "WV50",
         duration: 9,
         description: "Peculiar galaxy with dust lane"
     },
@@ -318,6 +405,8 @@ const OBSERVATION_CATALOG = [
         ra: "00:24:05",
         dec: "-72°04'53\"",
         iq: "IQ85",
+        cc: "CC70",
+        wv: "WV80",
         duration: 5,
         description: "Dense globular cluster"
     },
@@ -329,6 +418,8 @@ const OBSERVATION_CATALOG = [
         ra: "08:12:34",
         dec: "+15°23'12\"",
         iq: "IQAny",
+        cc: "CC80",
+        wv: "WVAny",
         duration: 3,
         description: "Third largest asteroid",
         nonSidereal: true
@@ -341,6 +432,8 @@ const OBSERVATION_CATALOG = [
         ra: "02:31:49",
         dec: "+89°15'51\"",
         iq: "IQAny",
+        cc: "CCAny",
+        wv: "WVAny",
         duration: 2,
         description: "Cepheid variable star"
     },
@@ -352,6 +445,8 @@ const OBSERVATION_CATALOG = [
         ra: "12:39:59",
         dec: "-11°37'23\"",
         iq: "IQ70",
+        cc: "CC50",
+        wv: "WV50",
         duration: 8,
         description: "Edge-on spiral with dust ring"
     },
@@ -363,6 +458,8 @@ const OBSERVATION_CATALOG = [
         ra: "18:18:48",
         dec: "-13°47'00\"",
         iq: "IQ85",
+        cc: "CC70",
+        wv: "WV80",
         duration: 7,
         description: "Pillars of Creation location"
     },
@@ -374,6 +471,8 @@ const OBSERVATION_CATALOG = [
         ra: "07:10:24",
         dec: "-39°05'51\"",
         iq: "IQ20",
+        cc: "CC50",
+        wv: "WV20",
         duration: 11,
         description: "Hot Jupiter with metal vapors"
     }
@@ -382,17 +481,26 @@ const OBSERVATION_CATALOG = [
 // ===================================
 // APPLICATION STATE
 // ===================================
+const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
 let state = {
     // Simulation
     isRunning: false,
     currentObsIndex: -1,
     observationProgress: 0,
     totalScore: 0,
-    completedObs: [],
-    
+    completedObs: [],       // Completed observations for current night
+
+    // Weekly tracking
+    currentDay: 0,          // 0-6 for the week
+    weeklyScore: 0,         // Total score across all nights
+    weeklyCompletedObs: [], // All completed observations for the week
+    dailyResults: [],       // Results for each night {day, score, observations, efficiency}
+    availableCatalog: [],   // Observations still available (not yet completed)
+
     // Time
     simTime: new Date(2024, 0, 15, 19, 0, 0), // Start at 7 PM
-    
+
     // Camera
     stars: [],
     currentRA: 0,
@@ -401,18 +509,19 @@ let state = {
     targetDec: 0,
     isSlewing: false,
     slewProgress: 0,
-    
+
     // Weather
     weather: {
         clouds: 20,
         seeing: 0.8,
         humidity: 45
     },
-    forecast: [],
-    
+    weeklyForecast: [],     // 7-day forecast
+    currentDayForecast: [], // Current night's hourly forecast
+
     // Queue
     nightlyQueue: [],
-    
+
     // Animation
     lastFrameTime: 0,
     animationId: null
@@ -428,11 +537,12 @@ function initElements() {
         // Canvas
         canvas: document.getElementById('acquisitionCamera'),
         ctx: null,
-        
+
         // Time & Score
         simTime: document.getElementById('simTime'),
         totalScore: document.getElementById('totalScore'),
-        
+        currentDayLabel: document.getElementById('currentDayLabel'),
+
         // Camera
         cameraStatus: document.getElementById('cameraStatus'),
         currentRA: document.getElementById('currentRA'),
@@ -441,7 +551,7 @@ function initElements() {
         observationProgress: document.getElementById('observationProgress'),
         progressFill: document.getElementById('progressFill'),
         progressText: document.getElementById('progressText'),
-        
+
         // Weather
         cloudBar: document.getElementById('cloudBar'),
         cloudValue: document.getElementById('cloudValue'),
@@ -450,20 +560,20 @@ function initElements() {
         humidityBar: document.getElementById('humidityBar'),
         humidityValue: document.getElementById('humidityValue'),
         forecastTimeline: document.getElementById('forecastTimeline'),
-        
+
         // Status
         statusTarget: document.getElementById('statusTarget'),
         obsComplete: document.getElementById('obsComplete'),
         queueStatus: document.getElementById('queueStatus'),
         lastScore: document.getElementById('lastScore'),
-        
+
         // Queue
         observationCatalog: document.getElementById('observationCatalog'),
         nightlyQueue: document.getElementById('nightlyQueue'),
         queueCount: document.getElementById('queueCount'),
         startNightBtn: document.getElementById('startNightBtn'),
         resetBtn: document.getElementById('resetBtn'),
-        
+
         // Modal
         resultsModal: document.getElementById('resultsModal'),
         finalScore: document.getElementById('finalScore'),
@@ -472,7 +582,7 @@ function initElements() {
         observationResults: document.getElementById('observationResults'),
         closeModalBtn: document.getElementById('closeModalBtn')
     };
-    
+
     elements.ctx = elements.canvas.getContext('2d');
 }
 
@@ -483,12 +593,13 @@ function init() {
     initElements();
     resizeCanvas();
     generateStars();
-    generateForecast();
+    initializeWeek();
     renderCatalog();
     renderQueue();
     updateWeatherDisplay();
     setupEventListeners();
     startRenderLoop();
+    updateDayDisplay();
 }
 
 function resizeCanvas() {
@@ -510,55 +621,126 @@ function generateStars() {
     }
 }
 
-function generateForecast() {
-    state.forecast = [];
+function initializeWeek() {
+    // Reset weekly state
+    state.currentDay = 0;
+    state.weeklyScore = 0;
+    state.weeklyCompletedObs = [];
+    state.dailyResults = [];
+    state.availableCatalog = [...OBSERVATION_CATALOG]; // Copy of all observations
+
+    // Generate 7-day forecast
+    generateWeeklyForecast();
+
+    // Set up current day's forecast
+    setCurrentDayForecast();
+}
+
+function generateWeeklyForecast() {
+    state.weeklyForecast = [];
     const conditions = ['clear', 'clear', 'partly-cloudy', 'cloudy'];
-    
-    for (let hour = 19; hour <= 24 + 5; hour++) { // 7 PM to 5 AM
-        const displayHour = hour > 24 ? hour - 24 : hour;
-        const condition = conditions[Math.floor(Math.random() * conditions.length)];
-        
-        let clouds, seeing;
-        switch (condition) {
+
+    for (let day = 0; day < 7; day++) {
+        // Each day has a general tendency
+        const dayTendency = Math.random();
+        let dayCondition;
+        if (dayTendency < 0.4) dayCondition = 'clear';
+        else if (dayTendency < 0.7) dayCondition = 'partly-cloudy';
+        else dayCondition = 'cloudy';
+
+        let avgClouds, avgSeeing, avgHumidity;
+        switch (dayCondition) {
             case 'clear':
-                clouds = Math.random() * 20;
-                seeing = 0.4 + Math.random() * 0.4;
+                avgClouds = 10 + Math.random() * 20;
+                avgSeeing = 0.3 + Math.random() * 0.4;
+                avgHumidity = 25 + Math.random() * 20;
                 break;
             case 'partly-cloudy':
-                clouds = 30 + Math.random() * 30;
-                seeing = 0.7 + Math.random() * 0.5;
+                avgClouds = 35 + Math.random() * 25;
+                avgSeeing = 0.6 + Math.random() * 0.5;
+                avgHumidity = 40 + Math.random() * 25;
                 break;
             case 'cloudy':
-                clouds = 60 + Math.random() * 40;
-                seeing = 1.2 + Math.random() * 0.8;
+                avgClouds = 65 + Math.random() * 30;
+                avgSeeing = 1.0 + Math.random() * 0.8;
+                avgHumidity = 60 + Math.random() * 30;
                 break;
         }
-        
-        state.forecast.push({
+
+        state.weeklyForecast.push({
+            day,
+            dayName: DAY_NAMES[day],
+            condition: dayCondition,
+            avgClouds: Math.min(95, avgClouds),
+            avgSeeing,
+            avgHumidity: Math.min(90, avgHumidity),
+            icon: dayCondition === 'clear' ? '🌙' : dayCondition === 'partly-cloudy' ? '⛅' : '☁️'
+        });
+    }
+
+    renderWeeklyForecast();
+}
+
+function setCurrentDayForecast() {
+    const dayForecast = state.weeklyForecast[state.currentDay];
+    state.currentDayForecast = [];
+
+    // Generate hourly forecast for the current night based on daily forecast
+    for (let hour = 19; hour <= 24 + 5; hour++) {
+        const displayHour = hour > 24 ? hour - 24 : hour;
+
+        // Add some variation around the daily average
+        const cloudVariation = (Math.random() - 0.5) * 20;
+        const seeingVariation = (Math.random() - 0.5) * 0.3;
+        const humidityVariation = (Math.random() - 0.5) * 15;
+
+        const clouds = Math.max(0, Math.min(100, dayForecast.avgClouds + cloudVariation));
+        const seeing = Math.max(0.2, dayForecast.avgSeeing + seeingVariation);
+        const humidity = Math.max(10, Math.min(95, dayForecast.avgHumidity + humidityVariation));
+
+        let condition;
+        if (clouds < 25) condition = 'clear';
+        else if (clouds < 55) condition = 'partly-cloudy';
+        else condition = 'cloudy';
+
+        state.currentDayForecast.push({
             hour: displayHour,
             condition,
             clouds,
             seeing,
+            humidity,
             icon: condition === 'clear' ? '🌙' : condition === 'partly-cloudy' ? '⛅' : '☁️'
         });
     }
-    
-    renderForecast();
-    
+
     // Set initial weather based on first forecast block
-    if (state.forecast.length > 0) {
-        state.weather.clouds = state.forecast[0].clouds;
-        state.weather.seeing = state.forecast[0].seeing;
+    if (state.currentDayForecast.length > 0) {
+        state.weather.clouds = state.currentDayForecast[0].clouds;
+        state.weather.seeing = state.currentDayForecast[0].seeing;
+        state.weather.humidity = state.currentDayForecast[0].humidity;
     }
 }
 
-function renderForecast() {
-    elements.forecastTimeline.innerHTML = state.forecast.map((block, i) => `
-        <div class="forecast-block ${block.condition}" title="Clouds: ${Math.round(block.clouds)}%, Seeing: ${block.seeing.toFixed(2)}&quot;">
-            <span class="icon">${block.icon}</span>
-            <span class="time">${block.hour}:00</span>
-        </div>
-    `).join('');
+function renderWeeklyForecast() {
+    elements.forecastTimeline.innerHTML = state.weeklyForecast.map((day, i) => {
+        const isCurrentDay = i === state.currentDay;
+        const isPastDay = i < state.currentDay;
+        return `
+            <div class="forecast-block forecast-day ${day.condition} ${isCurrentDay ? 'current-day' : ''} ${isPastDay ? 'past-day' : ''}"
+                 title="CC: ${Math.round(day.avgClouds)}%, IQ: ${day.avgSeeing.toFixed(2)}&quot;, WV: ${Math.round(day.avgHumidity)}%">
+                <span class="icon">${day.icon}</span>
+                <span class="day-name">${day.dayName.substring(0, 3)}</span>
+                ${isPastDay ? '<span class="day-done">✓</span>' : ''}
+            </div>
+        `;
+    }).join('');
+}
+
+function updateDayDisplay() {
+    const dayForecast = state.weeklyForecast[state.currentDay];
+    if (elements.currentDayLabel) {
+        elements.currentDayLabel.textContent = `Night ${state.currentDay + 1}/7 - ${dayForecast.dayName}`;
+    }
 }
 
 // ===================================
@@ -580,7 +762,18 @@ function setupEventListeners() {
 // ===================================
 function renderCatalog() {
     const queueFull = state.nightlyQueue.length >= CONFIG.MAX_QUEUE_SIZE;
-    elements.observationCatalog.innerHTML = OBSERVATION_CATALOG.map(obs => {
+
+    if (state.availableCatalog.length === 0) {
+        elements.observationCatalog.innerHTML = `
+            <div class="empty-queue">
+                <span>✅</span>
+                <p>All observations completed this week!</p>
+            </div>
+        `;
+        return;
+    }
+
+    elements.observationCatalog.innerHTML = state.availableCatalog.map(obs => {
         const inQueue = state.nightlyQueue.some(q => q.id === obs.id);
         const points = CONFIG.BASE_POINTS[obs.iq];
         const isDisabled = inQueue || state.isRunning || (queueFull && !inQueue);
@@ -591,9 +784,10 @@ function renderCatalog() {
                 <div class="obs-info">
                     <div class="obs-name">${obs.name}</div>
                     <div class="obs-details">
-                        <span class="obs-iq ${obs.iq.toLowerCase()}">${obs.iq}</span>
-                        <span class="obs-points">+${points} pts</span>
-                        <span class="obs-duration">${obs.duration} min</span>
+                        <span class="obs-constraint ${obs.iq.toLowerCase()}">${obs.iq}</span>
+                        <span class="obs-constraint ${obs.cc.toLowerCase()}">${obs.cc}</span>
+                        <span class="obs-constraint ${obs.wv.toLowerCase()}">${obs.wv}</span>
+                        <span class="obs-duration">${obs.duration}m</span>
                     </div>
                 </div>
                 <button class="obs-action" onclick="addToQueue(${obs.id})" ${isDisabled ? 'disabled' : ''}>+</button>
@@ -615,35 +809,36 @@ function renderQueue() {
             const points = CONFIG.BASE_POINTS[obs.iq];
             const isCurrent = state.isRunning && index === state.currentObsIndex;
             const isCompleted = state.completedObs.some(c => c.id === obs.id);
-            
+
             return `
                 <div class="observation-item ${isCurrent ? 'current' : ''} ${isCompleted ? 'completed' : ''}" data-id="${obs.id}">
                     <span class="obs-icon">${obs.icon}</span>
                     <div class="obs-info">
                         <div class="obs-name">${index + 1}. ${obs.name}</div>
                         <div class="obs-details">
-                            <span class="obs-iq ${obs.iq.toLowerCase()}">${obs.iq}</span>
-                            <span class="obs-points">+${points} pts</span>
-                            <span class="obs-duration">${obs.duration} min</span>
+                            <span class="obs-constraint ${obs.iq.toLowerCase()}">${obs.iq}</span>
+                            <span class="obs-constraint ${obs.cc.toLowerCase()}">${obs.cc}</span>
+                            <span class="obs-constraint ${obs.wv.toLowerCase()}">${obs.wv}</span>
+                            <span class="obs-duration">${obs.duration}m</span>
                         </div>
                     </div>
-                    ${!state.isRunning && !isCompleted ? 
-                        `<button class="obs-action remove" onclick="removeFromQueue(${obs.id})">×</button>` : 
-                        isCompleted ? '<span style="color: var(--accent-success);">✓</span>' : 
+                    ${!state.isRunning && !isCompleted ?
+                        `<button class="obs-action remove" onclick="removeFromQueue(${obs.id})">×</button>` :
+                        isCompleted ? '<span style="color: var(--accent-success);">✓</span>' :
                         isCurrent ? '<span style="color: var(--accent-primary);">▶</span>' : ''
                     }
                 </div>
             `;
         }).join('');
     }
-    
+
     elements.queueCount.textContent = `${state.nightlyQueue.length} / ${CONFIG.MAX_QUEUE_SIZE} observations`;
     elements.startNightBtn.disabled = state.nightlyQueue.length === 0 || state.isRunning;
     updateStatusDisplay();
 }
 
 function addToQueue(obsId) {
-    const obs = OBSERVATION_CATALOG.find(o => o.id === obsId);
+    const obs = state.availableCatalog.find(o => o.id === obsId);
     if (obs && !state.nightlyQueue.some(q => q.id === obsId)) {
         if (state.nightlyQueue.length >= CONFIG.MAX_QUEUE_SIZE) {
             return; // Queue is full
@@ -669,16 +864,16 @@ window.removeFromQueue = removeFromQueue;
 // ===================================
 function startNight() {
     if (state.nightlyQueue.length === 0) return;
-    
+
     state.isRunning = true;
     state.currentObsIndex = -1;
     state.completedObs = [];
-    state.totalScore = 0;
-    
+    state.totalScore = 0; // Nightly score
+
     elements.startNightBtn.disabled = true;
     elements.queueStatus.textContent = 'Running';
     elements.queueStatus.className = 'status-value status-badge running';
-    
+
     renderCatalog();
     startNextObservation();
 }
@@ -761,32 +956,33 @@ function startObserving(obs) {
 function completeObservation(obs) {
     // Calculate score based on weather and IQ
     const score = calculateScore(obs);
-    
+
     state.completedObs.push({
         ...obs,
         score: score.points,
         efficiency: score.efficiency
     });
-    
+
     state.totalScore += score.points;
-    elements.totalScore.textContent = state.totalScore;
-    
+    // Display shows weekly total + current night's score
+    elements.totalScore.textContent = state.weeklyScore + state.totalScore;
+
     // Show last score
     const lastScoreEl = elements.lastScore;
     lastScoreEl.classList.remove('hidden');
     lastScoreEl.querySelector('.score-value').textContent = `+${score.points}`;
-    
+
     // Update status
     elements.obsComplete.textContent = `${state.completedObs.length} / ${state.nightlyQueue.length}`;
-    
+
     // Advance simulation time
     state.simTime.setMinutes(state.simTime.getMinutes() + obs.duration);
-    
+
     elements.observationProgress.classList.add('hidden');
     elements.currentTargetInfo.innerHTML = '<span class="no-target">Moving to next target...</span>';
-    
+
     renderQueue();
-    
+
     // Short delay before next observation
     setTimeout(() => {
         startNextObservation();
@@ -795,71 +991,263 @@ function completeObservation(obs) {
 
 function calculateScore(obs) {
     const requiredSeeing = CONFIG.IQ_REQUIREMENTS[obs.iq];
+    const requiredCC = CONFIG.CC_REQUIREMENTS[obs.cc];
+    const requiredWV = CONFIG.WV_REQUIREMENTS[obs.wv];
     const actualSeeing = state.weather.seeing;
+    const actualClouds = state.weather.clouds;
+    const actualHumidity = state.weather.humidity;
     const basePoints = CONFIG.BASE_POINTS[obs.iq];
-    
-    let multiplier;
-    
+
+    let multiplier = 1.0;
+
+    // IQ (seeing) scoring
     if (actualSeeing <= requiredSeeing) {
         // Good or excellent conditions
         const bonus = (requiredSeeing - actualSeeing) / requiredSeeing;
-        multiplier = 1.0 + (bonus * 0.5); // Up to 50% bonus
+        multiplier *= 1.0 + (bonus * 0.3); // Up to 30% bonus
     } else {
         // Poor conditions
         const penalty = (actualSeeing - requiredSeeing) / requiredSeeing;
-        multiplier = Math.max(0.2, 1.0 - (penalty * 0.8)); // Minimum 20%
+        multiplier *= Math.max(0.3, 1.0 - (penalty * 0.6)); // Minimum 30%
     }
-    
-    // Cloud penalty
-    if (state.weather.clouds > 50) {
-        multiplier *= 0.5;
-    } else if (state.weather.clouds > 30) {
-        multiplier *= 0.75;
+
+    // CC (cloud cover) scoring
+    if (actualClouds <= requiredCC) {
+        // Good cloud conditions
+        const bonus = (requiredCC - actualClouds) / requiredCC;
+        multiplier *= 1.0 + (bonus * 0.2); // Up to 20% bonus
+    } else {
+        // Poor cloud conditions
+        const penalty = (actualClouds - requiredCC) / (100 - requiredCC + 1);
+        multiplier *= Math.max(0.3, 1.0 - (penalty * 0.7)); // Minimum 30%
     }
-    
+
+    // WV (humidity) scoring
+    if (actualHumidity <= requiredWV) {
+        // Good humidity conditions
+        const bonus = (requiredWV - actualHumidity) / requiredWV;
+        multiplier *= 1.0 + (bonus * 0.15); // Up to 15% bonus
+    } else {
+        // Poor humidity conditions
+        const penalty = (actualHumidity - requiredWV) / (100 - requiredWV + 1);
+        multiplier *= Math.max(0.5, 1.0 - (penalty * 0.5)); // Minimum 50%
+    }
+
     const points = Math.round(basePoints * multiplier);
     const efficiency = Math.round(multiplier * 100);
-    
+
     return { points, efficiency, multiplier };
 }
 
 function endNight() {
     state.isRunning = false;
-    
+
+    // Remove completed observations from available catalog
+    state.completedObs.forEach(obs => {
+        state.availableCatalog = state.availableCatalog.filter(o => o.id !== obs.id);
+        state.weeklyCompletedObs.push(obs);
+    });
+
+    // Calculate nightly efficiency
+    const totalPossible = state.completedObs.reduce((sum, obs) => sum + CONFIG.BASE_POINTS[obs.iq], 0);
+    const nightlyEfficiency = totalPossible > 0 ? Math.round((state.totalScore / totalPossible) * 100) : 0;
+
+    // Save daily results
+    state.dailyResults.push({
+        day: state.currentDay,
+        dayName: DAY_NAMES[state.currentDay],
+        score: state.totalScore,
+        observations: [...state.completedObs],
+        efficiency: nightlyEfficiency
+    });
+
+    // Add to weekly total
+    state.weeklyScore += state.totalScore;
+
     elements.cameraStatus.textContent = 'COMPLETE';
     elements.cameraStatus.className = 'status-badge active';
     elements.queueStatus.textContent = 'Complete';
     elements.queueStatus.className = 'status-value status-badge active';
-    
-    showResults();
+
+    // Check if week is complete
+    if (state.currentDay >= 6) {
+        showWeeklySummary();
+    } else {
+        showNightResults();
+    }
 }
 
-function showResults() {
+function showNightResults() {
     const totalPossible = state.completedObs.reduce((sum, obs) => sum + CONFIG.BASE_POINTS[obs.iq], 0);
     const avgEfficiency = totalPossible > 0 ? Math.round((state.totalScore / totalPossible) * 100) : 0;
-    
+
+    // Update modal for nightly results
+    document.querySelector('#resultsModal h2').textContent = `🌙 Night ${state.currentDay + 1} Complete!`;
+
     elements.finalScore.textContent = state.totalScore;
     elements.obsCompleted.textContent = state.completedObs.length;
     elements.avgScore.textContent = `${avgEfficiency}%`;
-    
-    elements.observationResults.innerHTML = state.completedObs.map(obs => {
-        const maxPoints = CONFIG.BASE_POINTS[obs.iq];
-        const scoreClass = obs.efficiency >= 80 ? 'good' : obs.efficiency >= 50 ? 'ok' : 'poor';
-        
-        return `
-            <div class="obs-result">
-                <span class="obs-result-name">${obs.icon} ${obs.name}</span>
-                <span class="obs-result-score ${scoreClass}">+${obs.score} / ${maxPoints}</span>
+
+    // Update labels for nightly view
+    document.querySelectorAll('.result-label')[0].textContent = 'Tonight\'s Points';
+    document.querySelectorAll('.result-label')[1].textContent = 'Observations';
+    document.querySelectorAll('.result-label')[2].textContent = 'Efficiency';
+
+    elements.observationResults.innerHTML = `
+        <div class="weekly-progress-summary">
+            <div class="weekly-stat">
+                <span class="weekly-stat-value">${state.weeklyScore}</span>
+                <span class="weekly-stat-label">Weekly Total</span>
             </div>
-        `;
-    }).join('');
-    
+            <div class="weekly-stat">
+                <span class="weekly-stat-value">${state.weeklyCompletedObs.length}/${OBSERVATION_CATALOG.length}</span>
+                <span class="weekly-stat-label">Total Observed</span>
+            </div>
+            <div class="weekly-stat">
+                <span class="weekly-stat-value">${7 - state.currentDay - 1}</span>
+                <span class="weekly-stat-label">Nights Left</span>
+            </div>
+        </div>
+        <h4 style="margin: 1rem 0 0.5rem; color: var(--text-secondary);">Tonight's Observations:</h4>
+        ${state.completedObs.map(obs => {
+            const maxPoints = CONFIG.BASE_POINTS[obs.iq];
+            const scoreClass = obs.efficiency >= 80 ? 'good' : obs.efficiency >= 50 ? 'ok' : 'poor';
+            return `
+                <div class="obs-result">
+                    <span class="obs-result-name">${obs.icon} ${obs.name}</span>
+                    <span class="obs-result-score ${scoreClass}">+${obs.score} / ${maxPoints}</span>
+                </div>
+            `;
+        }).join('')}
+    `;
+
+    elements.closeModalBtn.textContent = `Continue to Night ${state.currentDay + 2}`;
+    elements.resultsModal.classList.remove('hidden');
+}
+
+function showWeeklySummary() {
+    // Calculate weekly stats
+    const totalPossibleWeekly = state.weeklyCompletedObs.reduce((sum, obs) => sum + CONFIG.BASE_POINTS[obs.iq], 0);
+    const weeklyEfficiency = totalPossibleWeekly > 0 ? Math.round((state.weeklyScore / totalPossibleWeekly) * 100) : 0;
+    const maxPossibleScore = OBSERVATION_CATALOG.reduce((sum, obs) => sum + CONFIG.BASE_POINTS[obs.iq], 0);
+    const completionRate = Math.round((state.weeklyCompletedObs.length / OBSERVATION_CATALOG.length) * 100);
+
+    // Determine rating
+    let rating, ratingEmoji;
+    if (weeklyEfficiency >= 90 && completionRate >= 80) {
+        rating = 'Outstanding Queue Coordinator!';
+        ratingEmoji = '🏆';
+    } else if (weeklyEfficiency >= 75 && completionRate >= 60) {
+        rating = 'Excellent Observer!';
+        ratingEmoji = '🌟';
+    } else if (weeklyEfficiency >= 60 && completionRate >= 40) {
+        rating = 'Good Work!';
+        ratingEmoji = '👍';
+    } else {
+        rating = 'Keep Practicing!';
+        ratingEmoji = '📚';
+    }
+
+    document.querySelector('#resultsModal h2').textContent = `${ratingEmoji} Week Complete!`;
+
+    elements.finalScore.textContent = state.weeklyScore;
+    elements.obsCompleted.textContent = state.weeklyCompletedObs.length;
+    elements.avgScore.textContent = `${weeklyEfficiency}%`;
+
+    // Update labels for weekly view
+    document.querySelectorAll('.result-label')[0].textContent = 'Weekly Total';
+    document.querySelectorAll('.result-label')[1].textContent = 'Total Observed';
+    document.querySelectorAll('.result-label')[2].textContent = 'Avg Efficiency';
+
+    elements.observationResults.innerHTML = `
+        <div class="weekly-rating">
+            <span class="rating-emoji">${ratingEmoji}</span>
+            <span class="rating-text">${rating}</span>
+        </div>
+
+        <div class="weekly-stats-grid">
+            <div class="weekly-final-stat">
+                <span class="stat-icon">🎯</span>
+                <span class="stat-value">${state.weeklyScore} / ${maxPossibleScore}</span>
+                <span class="stat-label">Max Possible Score</span>
+            </div>
+            <div class="weekly-final-stat">
+                <span class="stat-icon">📊</span>
+                <span class="stat-value">${completionRate}%</span>
+                <span class="stat-label">Catalog Completion</span>
+            </div>
+        </div>
+
+        <h4 style="margin: 1rem 0 0.5rem; color: var(--text-secondary);">Nightly Breakdown:</h4>
+        <div class="nightly-breakdown">
+            ${state.dailyResults.map(day => `
+                <div class="night-result">
+                    <span class="night-name">${day.dayName}</span>
+                    <span class="night-obs">${day.observations.length} obs</span>
+                    <span class="night-score ${day.efficiency >= 80 ? 'good' : day.efficiency >= 50 ? 'ok' : 'poor'}">+${day.score}</span>
+                </div>
+            `).join('')}
+        </div>
+
+        ${state.availableCatalog.length > 0 ? `
+            <h4 style="margin: 1rem 0 0.5rem; color: var(--text-secondary);">Missed Observations:</h4>
+            <div class="missed-obs">
+                ${state.availableCatalog.map(obs => `
+                    <span class="missed-obs-item">${obs.icon} ${obs.name}</span>
+                `).join('')}
+            </div>
+        ` : `
+            <div class="perfect-completion">
+                <span>🎉</span>
+                <p>Perfect! You completed the entire catalog!</p>
+            </div>
+        `}
+    `;
+
+    elements.closeModalBtn.textContent = 'Start New Week';
     elements.resultsModal.classList.remove('hidden');
 }
 
 function closeModal() {
     elements.resultsModal.classList.add('hidden');
-    resetSimulation();
+
+    if (state.currentDay >= 6) {
+        // Week is complete, full reset
+        resetSimulation();
+    } else {
+        // Move to next night
+        advanceToNextNight();
+    }
+}
+
+function advanceToNextNight() {
+    state.currentDay++;
+    state.currentObsIndex = -1;
+    state.observationProgress = 0;
+    state.totalScore = 0;
+    state.completedObs = [];
+    state.nightlyQueue = [];
+    state.simTime = new Date(2024, 0, 15 + state.currentDay, 19, 0, 0);
+    state.isSlewing = false;
+
+    // Set up weather for the new day
+    setCurrentDayForecast();
+
+    elements.cameraStatus.textContent = 'IDLE';
+    elements.cameraStatus.className = 'status-badge';
+    elements.queueStatus.textContent = 'Waiting';
+    elements.queueStatus.className = 'status-value status-badge idle';
+    elements.totalScore.textContent = state.weeklyScore;
+    elements.obsComplete.textContent = '0 / 0';
+    elements.currentTargetInfo.innerHTML = '<span class="no-target">No target selected</span>';
+    elements.observationProgress.classList.add('hidden');
+    elements.lastScore.classList.add('hidden');
+
+    renderWeeklyForecast();
+    renderCatalog();
+    renderQueue();
+    updateWeatherDisplay();
+    updateDayDisplay();
 }
 
 function resetSimulation() {
@@ -871,7 +1259,10 @@ function resetSimulation() {
     state.nightlyQueue = [];
     state.simTime = new Date(2024, 0, 15, 19, 0, 0);
     state.isSlewing = false;
-    
+
+    // Full reset of weekly state
+    initializeWeek();
+
     elements.cameraStatus.textContent = 'IDLE';
     elements.cameraStatus.className = 'status-badge';
     elements.queueStatus.textContent = 'Waiting';
@@ -881,11 +1272,11 @@ function resetSimulation() {
     elements.currentTargetInfo.innerHTML = '<span class="no-target">No target selected</span>';
     elements.observationProgress.classList.add('hidden');
     elements.lastScore.classList.add('hidden');
-    
-    generateForecast();
+
     renderCatalog();
     renderQueue();
     updateWeatherDisplay();
+    updateDayDisplay();
 }
 
 // ===================================
@@ -893,14 +1284,14 @@ function resetSimulation() {
 // ===================================
 function updateWeatherFromForecast() {
     const currentHour = state.simTime.getHours();
-    const forecastBlock = state.forecast.find(f => f.hour === currentHour) || state.forecast[0];
-    
+    const forecastBlock = state.currentDayForecast.find(f => f.hour === currentHour) || state.currentDayForecast[0];
+
     if (forecastBlock) {
         // Smooth transition to forecast values
         state.weather.clouds += (forecastBlock.clouds - state.weather.clouds) * 0.1;
         state.weather.seeing += (forecastBlock.seeing - state.weather.seeing) * 0.1;
-        state.weather.humidity = 40 + Math.random() * 30;
-        
+        state.weather.humidity += (forecastBlock.humidity - state.weather.humidity) * 0.1;
+
         updateWeatherDisplay();
     }
 }
@@ -973,38 +1364,42 @@ function startRenderLoop() {
 }
 
 function renderStars(ctx, canvas, deltaTime) {
-    const siderealDrift = state.isSlewing ? CONFIG.SIDEREAL_RATE * 10 : CONFIG.SIDEREAL_RATE;
+    // Stars only move during slewing (telescope is tracking the target when observing)
+    const isTracking = state.isRunning && !state.isSlewing;
+    const siderealDrift = state.isSlewing ? CONFIG.SIDEREAL_RATE * 15 : (isTracking ? 0 : CONFIG.SIDEREAL_RATE);
     const time = Date.now() / 1000;
-    
+
     state.stars.forEach(star => {
-        // Sidereal motion
-        star.x -= siderealDrift * (deltaTime / 1000) * 60;
-        
-        // Wrap around
-        if (star.x < 0) {
-            star.x = canvas.width;
-            star.y = Math.random() * canvas.height;
+        // Sidereal motion - only when not tracking a target
+        if (siderealDrift > 0) {
+            star.x -= siderealDrift * (deltaTime / 1000) * 60;
+
+            // Wrap around
+            if (star.x < 0) {
+                star.x = canvas.width;
+                star.y = Math.random() * canvas.height;
+            }
         }
-        
+
         // Calculate visibility based on clouds
         const cloudFactor = 1 - (state.weather.clouds / 100) * 0.9;
-        
+
         // Calculate twinkle
         const twinkle = 0.7 + 0.3 * Math.sin(time * 3 + star.twinkleOffset);
-        
+
         // Seeing affects star size (blur)
         const blurFactor = 1 + (state.weather.seeing - 0.4) * 1.5;
-        
+
         const alpha = star.brightness * cloudFactor * twinkle;
         const size = star.size * blurFactor;
-        
+
         if (alpha > 0.1) {
             // Draw star with glow
             const gradient = ctx.createRadialGradient(star.x, star.y, 0, star.x, star.y, size * 3);
             gradient.addColorStop(0, `rgba(255, 255, 255, ${alpha})`);
             gradient.addColorStop(0.3, `rgba(200, 220, 255, ${alpha * 0.5})`);
             gradient.addColorStop(1, 'rgba(100, 150, 255, 0)');
-            
+
             ctx.beginPath();
             ctx.arc(star.x, star.y, size * 3, 0, Math.PI * 2);
             ctx.fillStyle = gradient;
@@ -1014,16 +1409,21 @@ function renderStars(ctx, canvas, deltaTime) {
 }
 
 function renderWeatherEffects(ctx, canvas) {
-    // Cloud overlay - realistic fluffy clouds
+    // Cloud overlay - realistic fluffy clouds with independent wind-driven movement
     if (state.weather.clouds > 5) {
-        const time = Date.now() / 8000;
+        // Clouds move independently based on wind (always moving, regardless of telescope tracking)
+        const windTime = Date.now() / 1000; // Time in seconds for smooth wind animation
         const numClouds = Math.floor(state.weather.clouds / 5) + 2;
         const baseAlpha = Math.min((state.weather.clouds / 100) * 0.85, 0.85);
 
         for (let i = 0; i < numClouds; i++) {
-            // Each cloud drifts slowly across the sky
-            const baseX = ((i * 173 + time * 30) % (canvas.width + 300)) - 150;
+            // Each cloud has its own speed variation (wind gusts)
+            const cloudSpeed = CONFIG.CLOUD_WIND_SPEED * (0.7 + (i % 3) * 0.3);
+            // Clouds drift across the sky driven by wind (independent of star movement)
+            const baseX = ((i * 173 + windTime * cloudSpeed) % (canvas.width + 300)) - 150;
             const baseY = (Math.sin(i * 0.7 + 0.3) * 0.35 + 0.5) * canvas.height;
+            // Slight vertical bobbing to simulate turbulence
+            const turbulence = Math.sin(windTime * 0.5 + i * 1.3) * 3;
             const cloudScale = 0.8 + (i % 4) * 0.3;
 
             // Draw a fluffy cloud using multiple overlapping circles
@@ -1042,7 +1442,7 @@ function renderWeatherEffects(ctx, canvas) {
             // Draw shadow layer first (darker, offset down)
             puffs.forEach(puff => {
                 const px = baseX + puff.ox;
-                const py = baseY + puff.oy + 8;
+                const py = baseY + puff.oy + turbulence + 8;
                 const gradient = ctx.createRadialGradient(px, py, 0, px, py, puff.r * 1.2);
                 gradient.addColorStop(0, `rgba(40, 45, 55, ${baseAlpha * 0.4})`);
                 gradient.addColorStop(0.6, `rgba(50, 55, 65, ${baseAlpha * 0.25})`);
@@ -1057,7 +1457,7 @@ function renderWeatherEffects(ctx, canvas) {
             // Draw main cloud puffs (lighter, fluffy appearance)
             puffs.forEach(puff => {
                 const px = baseX + puff.ox;
-                const py = baseY + puff.oy;
+                const py = baseY + puff.oy + turbulence;
                 const gradient = ctx.createRadialGradient(px, py - 5, 0, px, py, puff.r);
                 gradient.addColorStop(0, `rgba(200, 205, 215, ${baseAlpha * 0.9})`);
                 gradient.addColorStop(0.3, `rgba(160, 165, 180, ${baseAlpha * 0.7})`);
@@ -1078,7 +1478,7 @@ function renderWeatherEffects(ctx, canvas) {
 
             highlightPuffs.forEach(puff => {
                 const px = baseX + puff.ox;
-                const py = baseY + puff.oy;
+                const py = baseY + puff.oy + turbulence;
                 const gradient = ctx.createRadialGradient(px, py, 0, px, py, puff.r);
                 gradient.addColorStop(0, `rgba(240, 245, 255, ${baseAlpha * 0.5})`);
                 gradient.addColorStop(0.5, `rgba(220, 225, 235, ${baseAlpha * 0.25})`);
