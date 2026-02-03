@@ -1,0 +1,16 @@
+{
+  "name": "telescope-simulator",
+  "version": "1.0.0",
+  "description": "Gemini Telescope Operations Simulator - An educational tool for teaching telescope operations",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["telescope", "astronomy", "simulator", "education"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
