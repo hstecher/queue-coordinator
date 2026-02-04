@@ -1639,6 +1639,67 @@ function showWeeklySummaryContent() {
 // ===================================
 // HIGH SCORES SYSTEM
 // ===================================
+
+// SSE connection for real-time leaderboard updates
+let leaderboardEventSource = null;
+
+function connectLeaderboardStream() {
+    if (leaderboardEventSource) {
+        return; // Already connected
+    }
+
+    leaderboardEventSource = new EventSource('/api/scores/stream');
+
+    leaderboardEventSource.onmessage = (event) => {
+        const scores = JSON.parse(event.data);
+        // Only update if the high scores modal is currently visible
+        if (!elements.highScoresModal.classList.contains('hidden') &&
+            !elements.highScoresList.querySelector('.name-entry-score')) {
+            renderHighScores(scores);
+        }
+    };
+
+    leaderboardEventSource.onerror = () => {
+        // Reconnect after a delay if connection is lost
+        leaderboardEventSource.close();
+        leaderboardEventSource = null;
+        setTimeout(connectLeaderboardStream, 5000);
+    };
+}
+
+function renderHighScores(scores) {
+    if (scores.length === 0) {
+        elements.highScoresList.innerHTML = `
+            <div class="no-scores">
+                <span>🌟</span>
+                <p>No high scores yet. Be the first to complete a week!</p>
+            </div>
+        `;
+        return;
+    }
+
+    elements.highScoresList.innerHTML = scores.map((score, index) => {
+        const rank = index + 1;
+        let rankClass = '';
+        if (rank === 1) rankClass = 'gold';
+        else if (rank === 2) rankClass = 'silver';
+        else if (rank === 3) rankClass = 'bronze';
+
+        const date = new Date(score.date).toLocaleDateString();
+
+        return `
+            <div class="high-score-item">
+                <span class="high-score-rank ${rankClass}">${rank}</span>
+                <div class="high-score-info">
+                    <div class="high-score-name">${escapeHtml(score.name)}</div>
+                    <div class="high-score-details">${score.observations} obs • ${score.efficiency}% eff • ${date}</div>
+                </div>
+                <span class="high-score-value">${score.score}</span>
+            </div>
+        `;
+    }).join('');
+}
+
 async function showHighScores() {
     elements.highScoresModal.classList.remove('hidden');
     elements.highScoresList.innerHTML = '<div class="loading-scores">Loading scores...</div>';
@@ -1653,40 +1714,13 @@ async function showHighScores() {
     elements.submitScoreBtn.textContent = 'Submit Score';
     elements.submitScoreBtn.disabled = false;
 
+    // Connect to the SSE stream for real-time updates
+    connectLeaderboardStream();
+
     try {
         const response = await fetch('/api/scores');
         const scores = await response.json();
-
-        if (scores.length === 0) {
-            elements.highScoresList.innerHTML = `
-                <div class="no-scores">
-                    <span>🌟</span>
-                    <p>No high scores yet. Be the first to complete a week!</p>
-                </div>
-            `;
-            return;
-        }
-
-        elements.highScoresList.innerHTML = scores.map((score, index) => {
-            const rank = index + 1;
-            let rankClass = '';
-            if (rank === 1) rankClass = 'gold';
-            else if (rank === 2) rankClass = 'silver';
-            else if (rank === 3) rankClass = 'bronze';
-
-            const date = new Date(score.date).toLocaleDateString();
-
-            return `
-                <div class="high-score-item">
-                    <span class="high-score-rank ${rankClass}">${rank}</span>
-                    <div class="high-score-info">
-                        <div class="high-score-name">${escapeHtml(score.name)}</div>
-                        <div class="high-score-details">${score.observations} obs • ${score.efficiency}% eff • ${date}</div>
-                    </div>
-                    <span class="high-score-value">${score.score}</span>
-                </div>
-            `;
-        }).join('');
+        renderHighScores(scores);
     } catch (error) {
         console.error('Failed to load high scores:', error);
         elements.highScoresList.innerHTML = `

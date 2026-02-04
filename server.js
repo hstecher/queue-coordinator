@@ -33,6 +33,20 @@ function saveHighScores(scores) {
 // Initialize on startup
 initHighScores();
 
+// SSE clients for real-time leaderboard updates
+const sseClients = new Set();
+
+// Broadcast leaderboard update to all connected clients
+function broadcastLeaderboardUpdate() {
+  const scores = loadHighScores();
+  const topScores = scores.sort((a, b) => b.score - a.score).slice(0, 20);
+  const data = JSON.stringify(topScores);
+
+  for (const client of sseClients) {
+    client.write(`data: ${data}\n\n`);
+  }
+}
+
 // Middleware
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
@@ -45,6 +59,26 @@ app.get('/', (req, res) => {
 // Health check endpoint for Cloud Run
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'healthy' });
+});
+
+// SSE endpoint for real-time leaderboard updates
+app.get('/api/scores/stream', (req, res) => {
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+
+  // Send initial data
+  const scores = loadHighScores();
+  const topScores = scores.sort((a, b) => b.score - a.score).slice(0, 20);
+  res.write(`data: ${JSON.stringify(topScores)}\n\n`);
+
+  // Add client to the set
+  sseClients.add(res);
+
+  // Remove client on disconnect
+  req.on('close', () => {
+    sseClients.delete(res);
+  });
 });
 
 // Get high scores (top 20)
@@ -87,6 +121,9 @@ app.post('/api/scores', (req, res) => {
 
   // Determine rank
   const rank = trimmedScores.findIndex(s => s.id === newScore.id) + 1;
+
+  // Broadcast update to all connected clients
+  broadcastLeaderboardUpdate();
 
   res.json({ success: true, rank, score: newScore });
 });
