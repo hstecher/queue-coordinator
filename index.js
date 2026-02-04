@@ -78,6 +78,30 @@ function getObservationPoints(obs) {
     return CONFIG.IQ_POINTS[obs.iq] + CONFIG.CC_POINTS[obs.cc] + CONFIG.WV_POINTS[obs.wv];
 }
 
+// Get IQ label from seeing value
+function getIQFromSeeing(seeing) {
+    if (seeing <= CONFIG.IQ_REQUIREMENTS['IQ20']) return 'IQ20';
+    if (seeing <= CONFIG.IQ_REQUIREMENTS['IQ70']) return 'IQ70';
+    if (seeing <= CONFIG.IQ_REQUIREMENTS['IQ85']) return 'IQ85';
+    return 'IQAny';
+}
+
+// Get CC label from cloud percentage
+function getCCFromClouds(clouds) {
+    if (clouds <= CONFIG.CC_REQUIREMENTS['CC50']) return 'CC50';
+    if (clouds <= CONFIG.CC_REQUIREMENTS['CC70']) return 'CC70';
+    if (clouds <= CONFIG.CC_REQUIREMENTS['CC80']) return 'CC80';
+    return 'CCAny';
+}
+
+// Get WV label from humidity percentage
+function getWVFromHumidity(humidity) {
+    if (humidity <= CONFIG.WV_REQUIREMENTS['WV20']) return 'WV20';
+    if (humidity <= CONFIG.WV_REQUIREMENTS['WV50']) return 'WV50';
+    if (humidity <= CONFIG.WV_REQUIREMENTS['WV80']) return 'WV80';
+    return 'WVAny';
+}
+
 // ===================================
 // OBSERVATION CATALOG
 // ===================================
@@ -886,6 +910,7 @@ function initElements() {
         cloudBar: document.getElementById('cloudBar'),
         cloudValue: document.getElementById('cloudValue'),
         seeingBar: document.getElementById('seeingBar'),
+        seeingIQ: document.getElementById('seeingIQ'),
         seeingValue: document.getElementById('seeingValue'),
         humidityBar: document.getElementById('humidityBar'),
         humidityValue: document.getElementById('humidityValue'),
@@ -1472,6 +1497,27 @@ function showNightResults() {
 }
 
 function showWeeklySummary() {
+    // Show name input modal first, then show the summary
+    showNameInputModal();
+}
+
+function showNameInputModal() {
+    elements.highScoresModal.classList.remove('hidden');
+    elements.highScoresList.innerHTML = '<div class="loading-scores">Enter your name to save your score...</div>';
+
+    // Always show submit section for name entry (required)
+    elements.submitScoreSection.classList.remove('hidden');
+    elements.playerNameInput.value = '';
+    elements.playerNameInput.focus();
+
+    // Update submit button to indicate this is required
+    elements.submitScoreBtn.textContent = 'Save Score & Continue';
+
+    // Hide close button until name is entered
+    elements.closeHighScoresBtn.style.display = 'none';
+}
+
+function showWeeklySummaryContent() {
     // Calculate weekly stats
     const totalPossibleWeekly = state.weeklyCompletedObs.reduce((sum, obs) => sum + getObservationPoints(obs), 0);
     const weeklyEfficiency = totalPossibleWeekly > 0 ? Math.round((state.weeklyScore / totalPossibleWeekly) * 100) : 0;
@@ -1586,12 +1632,15 @@ async function showHighScores() {
     elements.highScoresModal.classList.remove('hidden');
     elements.highScoresList.innerHTML = '<div class="loading-scores">Loading scores...</div>';
 
-    // Show submit section if week is complete, score > 0, and not already submitted
-    if (state.currentDay >= 6 && state.weeklyScore > 0 && !state.scoreSubmitted) {
-        elements.submitScoreSection.classList.remove('hidden');
-    } else {
-        elements.submitScoreSection.classList.add('hidden');
-    }
+    // Hide submit section when viewing high scores (score already submitted)
+    elements.submitScoreSection.classList.add('hidden');
+
+    // Make sure close button is visible
+    elements.closeHighScoresBtn.style.display = '';
+
+    // Reset submit button text
+    elements.submitScoreBtn.textContent = 'Submit Score';
+    elements.submitScoreBtn.disabled = false;
 
     try {
         const response = await fetch('/api/scores');
@@ -1642,14 +1691,16 @@ async function submitScore() {
     const name = elements.playerNameInput.value.trim();
     if (!name) {
         elements.playerNameInput.focus();
+        elements.playerNameInput.style.borderColor = 'var(--accent-danger)';
         return;
     }
+    elements.playerNameInput.style.borderColor = '';
 
     const totalPossibleWeekly = state.weeklyCompletedObs.reduce((sum, obs) => sum + getObservationPoints(obs), 0);
     const weeklyEfficiency = totalPossibleWeekly > 0 ? Math.round((state.weeklyScore / totalPossibleWeekly) * 100) : 0;
 
     elements.submitScoreBtn.disabled = true;
-    elements.submitScoreBtn.textContent = 'Submitting...';
+    elements.submitScoreBtn.textContent = 'Saving...';
 
     try {
         const response = await fetch('/api/scores', {
@@ -1670,17 +1721,19 @@ async function submitScore() {
         if (result.success) {
             state.scoreSubmitted = true;
             elements.submitScoreSection.classList.add('hidden');
-            // Refresh the high scores list
-            await showHighScores();
-            // Highlight the player's score
-            highlightPlayerScore(result.rank);
+
+            // Close the high scores modal
+            elements.highScoresModal.classList.add('hidden');
+            elements.closeHighScoresBtn.style.display = '';
+
+            // Now show the weekly summary
+            showWeeklySummaryContent();
         }
     } catch (error) {
         console.error('Failed to submit score:', error);
         alert('Failed to submit score. Please try again.');
-    } finally {
         elements.submitScoreBtn.disabled = false;
-        elements.submitScoreBtn.textContent = 'Submit Score';
+        elements.submitScoreBtn.textContent = 'Save Score & Continue';
     }
 }
 
@@ -1797,12 +1850,17 @@ function updateWeatherFromForecast() {
 function updateWeatherDisplay() {
     elements.cloudBar.style.width = `${state.weather.clouds}%`;
     elements.cloudValue.textContent = `${Math.round(state.weather.clouds)}%`;
-    
+
     // Seeing: 0.2" (best) to 2.0" (worst) mapped to 0-100%
     const seeingPercent = ((state.weather.seeing - 0.2) / 1.8) * 100;
     elements.seeingBar.style.width = `${Math.min(100, Math.max(0, seeingPercent))}%`;
     elements.seeingValue.textContent = `${state.weather.seeing.toFixed(2)}"`;
-    
+
+    // Update IQ label based on current seeing
+    const iqLabel = getIQFromSeeing(state.weather.seeing);
+    elements.seeingIQ.textContent = iqLabel;
+    elements.seeingIQ.className = `metric-iq ${iqLabel.toLowerCase()}`;
+
     elements.humidityBar.style.width = `${state.weather.humidity}%`;
     elements.humidityValue.textContent = `${Math.round(state.weather.humidity)}%`;
 }
