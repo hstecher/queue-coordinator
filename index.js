@@ -1503,7 +1503,17 @@ function showWeeklySummary() {
 
 function showNameInputModal() {
     elements.highScoresModal.classList.remove('hidden');
-    elements.highScoresList.innerHTML = '<div class="loading-scores">Enter your name to save your score...</div>';
+
+    // Show the score prominently in the dialog
+    elements.highScoresList.innerHTML = `
+        <div class="name-entry-score">
+            <div class="score-display-large">
+                <span class="score-label">Your Final Score</span>
+                <span class="score-value">${state.weeklyScore}</span>
+            </div>
+            <p class="score-prompt">Enter your name to save your score to the leaderboard!</p>
+        </div>
+    `;
 
     // Always show submit section for name entry (required)
     elements.submitScoreSection.classList.remove('hidden');
@@ -1512,6 +1522,7 @@ function showNameInputModal() {
 
     // Update submit button to indicate this is required
     elements.submitScoreBtn.textContent = 'Save Score & Continue';
+    elements.submitScoreBtn.disabled = false;
 
     // Hide close button until name is entered
     elements.closeHighScoresBtn.style.display = 'none';
@@ -1728,6 +1739,12 @@ async function submitScore() {
 
             // Now show the weekly summary
             showWeeklySummaryContent();
+        } else {
+            // Handle server error response (e.g., validation error)
+            console.error('Failed to submit score:', result.error || 'Unknown error');
+            alert(result.error || 'Failed to submit score. Please try again.');
+            elements.submitScoreBtn.disabled = false;
+            elements.submitScoreBtn.textContent = 'Save Score & Continue';
         }
     } catch (error) {
         console.error('Failed to submit score:', error);
